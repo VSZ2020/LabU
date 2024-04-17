@@ -2,18 +2,20 @@
 @model LabU.Pages.Account.Login
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Вход в систему";
 }
-
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-<div>
-    
-</div>
-</body>
-</html>
+<h2>@ViewData["Title"]</h2>
+<form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+    @Html.LabelFor(x => x.Username)
+    @Html.TextBoxFor(x => x.Username)
+    <span asp-validation-for="Username"></span>
+    <br/>
+    @Html.LabelFor(x => x.Password)
+    @Html.TextBoxFor(x => x.Password)
+    <span asp-validation-for="Password"></span>
+    <br/>
+    @Html.LabelFor(x => x.RememberMe)
+    @Html.CheckBoxFor(x => x.RememberMe)
+    <br/>
+    <input type="submit" value="Войти" class="btn btn-primary"/>
+</form>

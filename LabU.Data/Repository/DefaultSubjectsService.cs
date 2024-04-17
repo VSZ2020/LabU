@@ -3,21 +3,21 @@ using LabU.Core.Dto;
 using LabU.Core.Entities;
 using LabU.Core.Interfaces;
 
-namespace LabU.Services.Data;
+namespace LabU.Data.Repository;
 
 public class DefaultSubjectsService: ISubjectService
 {
-    public Task<IEnumerable<SubjectDto>> GetAllAsync(int userId)
+    public Task<IEnumerable<SubjectEntity>> GetAllAsync(int userId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<SubjectDto>> GetAllAsync(Expression<Func<SubjectEntity, bool>>? filter = null)
+    public Task<IEnumerable<SubjectEntity>> GetAllAsync(Expression<Func<SubjectEntity, bool>>? filter = null)
     {
         throw new NotImplementedException();
     }
 
-    public Task<SubjectDto?> FindSubjectByIdAsync(int id)
+    public Task<SubjectEntity?> FindSubjectByIdAsync(int id)
     {
         throw new NotImplementedException();
     }
@@ -27,27 +27,27 @@ public class DefaultSubjectsService: ISubjectService
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<StudentDto>> GetAttachedStudents(int subjectId)
+    public Task<IEnumerable<StudentEntity>> GetAttachedStudents(int subjectId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<TeacherDto>> GetAttachedTeachers(int subjectId)
+    public Task<IEnumerable<TeacherEntity>> GetAttachedTeachers(int subjectId)
     {
         throw new NotImplementedException();
     }
 
-    public bool AddSubject(SubjectDto item)
+    public bool AddSubject(SubjectEntity item)
     {
         throw new NotImplementedException();
     }
 
-    public bool EditSubject(SubjectDto item)
+    public bool EditSubject(SubjectEntity item)
     {
         throw new NotImplementedException();
     }
 
-    public bool RemoveSubject(SubjectDto item)
+    public bool RemoveSubject(SubjectEntity item)
     {
         throw new NotImplementedException();
     }

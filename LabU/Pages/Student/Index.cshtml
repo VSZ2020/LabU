@@ -1,0 +1,54 @@
+﻿@page
+@model LabU.Pages.Student.IndexModel
+@{
+    ViewData["Title"] = "Главная";
+}
+<h3>Активные задачи</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Name)</td>
+            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Deadline)</td>
+            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Status)</td>
+            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Subject)</td>
+            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Reviewers)</td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var task in Model.ActiveTasks)
+        {
+            <tr>
+                <td>@Html.DisplayFor(x => task.Name)</td>
+                <td>@Html.DisplayFor(x => task.Deadline)</td>
+                <td>@Html.DisplayFor(x => task.Status)</td>
+                <td>@Html.DisplayFor(x => task.Subject)</td>
+                <td>@Html.DisplayFor(x => task.Reviewers)</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<h3>Выполненные задачи</h3>
+<table class="table">
+    <thead>
+    <tr>
+        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Name)</td>
+        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Deadline)</td>
+        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Status)</td>
+        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Subject)</td>
+        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Reviewers)</td>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach(var task in Model.CompletedTasks)
+    {
+        <tr>
+            <td>@Html.DisplayFor(x => task.Name)</td>
+            <td>@Html.DisplayFor(x => task.Deadline)</td>
+            <td>@Html.DisplayFor(x => task.Status)</td>
+            <td>@Html.DisplayFor(x => task.Subject)</td>
+            <td>@Html.DisplayFor(x => task.Reviewers)</td>
+        </tr>
+    }
+    </tbody>
+</table>
