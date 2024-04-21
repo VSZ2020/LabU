@@ -1,8 +1,7 @@
-﻿using LabU.Core.Entities.Identity;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace LabU.Core.Entities
+namespace LabU.Core.Entities.Identity
 {
     /// <summary>
     /// Учетная запись пользователя
@@ -13,9 +12,9 @@ namespace LabU.Core.Entities
         /// <summary>
         /// Имя пользователя
         /// </summary>
-        public string? Username { get;  set; }
+        public string? Username { get; set; }
 
-        public string? PasswordHash { get;  set; }
+        public string? PasswordHash { get; set; }
 
         /// <summary>
         /// Адрес электронной почты для связи и сброса пароля
@@ -42,14 +41,14 @@ namespace LabU.Core.Entities
         /// </summary>
         [DataType(DataType.DateTime)]
         public DateTime LastVisit { get; set; }
-        
+
         public string? SecurityStamp { get; set; }
 
         /// <summary>
         /// Число неудачных попыток входа
         /// </summary>
         public int AccessFiledCount { get; set; }
-        
+
         public List<UserRoleTable> UserRoleTable { get; set; }
     }
 }

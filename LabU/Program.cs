@@ -1,8 +1,12 @@
 using System.Security.Claims;
 using LabU.Core.Identity;
+using LabU.Core.Interfaces;
 using LabU.Data;
+using LabU.Data.Repository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,16 +17,20 @@ builder.Services.AddRazorPages(pages =>
     pages.Conventions.AuthorizeFolder("/Student", "StudentAdminPolicy");
     pages.Conventions.AuthorizeFolder("/Teacher", "TeacherAdminPolicy");
     pages.Conventions.AuthorizeFolder("/Admin", "AdminOnlyPolicy");
+    pages.Conventions.AllowAnonymousToPage("/Account/Login");
 });
+
+//builder.Services.AddDbContext<UsersContext>(
+//    options => options.UseSqlite(
+//        builder.Configuration.GetConnectionString("DataContextConnection") ?? throw new InvalidOperationException("Connection string for 'DataContextConnection' is missing"),
+//        m => m.MigrationsAssembly("LabU.Data")));
 
 builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlite(
         builder.Configuration.GetConnectionString("DataContextConnection") ?? throw new InvalidOperationException("Connection string for 'DataContextConnection' is missing"), 
         m => m.MigrationsAssembly("LabU.Data")));
-builder.Services.AddDbContext<UsersContext>(
-    options => options.UseSqlite(
-        builder.Configuration.GetConnectionString("DataContextConnection") ?? throw new InvalidOperationException("Connection string for 'DataContextConnection' is missing"), 
-        m => m.MigrationsAssembly("LabU.Data")));
+
+
 builder.Services
     .AddAuthentication(options =>
     {
@@ -31,7 +39,7 @@ builder.Services
     .AddCookie(options =>
     {
         options.LoginPath = "/Account/Login";
-        options.AccessDeniedPath = "/Account/Login";
+        options.AccessDeniedPath = $"/Account/Login/{options.ReturnUrlParameter}";
     });
 
 builder.Services.AddAuthorization(options =>
@@ -48,6 +56,15 @@ builder.Services.AddAuthorization(options =>
     });
 });
 
+builder.Services
+    //.AddTransient<IUserService, DefaultUsersRepository>()
+    //.AddTransient<IPersonRepository, DefaultPersonRepository>()
+    //.AddTransient<IRoleService, DefaultRoleService>()
+    //.AddTransient<ITaskRepository, DefaultTaskRepository>()
+    //.AddTransient<ITaskResponseService, DefaultTaskResponseRepository>()
+    //.AddTransient<ISubjectRepository, DefaultSubjectsRepository>()
+    //.AddTransient<IAuthService, DefaultAuthService>()
+    .AddScoped<UnitOfWork>();
 
 var app = builder.Build();
 
@@ -69,9 +86,24 @@ app.UseAuthorization();
 
 app.MapRazorPages();
 
-app.Map("/Account/Logout", (HttpContext context) =>
+app.MapGet("/Index", [Authorize] async (HttpContext context) =>
 {
-    context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+    if (context.User.IsInRole(UserRoles.ADMINISTRATOR))
+        return Results.Redirect(".");
+
+    if (context.User.IsInRole(UserRoles.STUDENT))
+        return Results.Redirect("/Student/Index");
+
+    if (context.User.IsInRole(UserRoles.TEACHER))
+        return Results.Redirect("/Teacher/Index");
+
+    return Results.Redirect(".");
+});
+
+app.Map("/Logout", [Authorize]async (HttpContext context) =>
+{
+    await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
     return Results.Redirect("/Account/Login");
 });
+
 app.Run();

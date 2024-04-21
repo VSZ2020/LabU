@@ -1,4 +1,5 @@
 ﻿using LabU.Core.Entities;
+using LabU.Models;
 
 namespace LabU.Utils.Extensions;
 
@@ -6,7 +7,7 @@ public static class PersonNameExtensions
 {
     private static string ShortName(string? lastName, string? firstName, string? middleName)
     {
-        return $"{lastName} {(!string.IsNullOrEmpty(firstName) ? firstName[0] + '.' : "")} {(!string.IsNullOrEmpty(middleName) ? middleName[0] + '.' : "")}";
+        return $"{lastName} {(!string.IsNullOrEmpty(firstName) ? firstName[0] + "." : "")} {(!string.IsNullOrEmpty(middleName) ? middleName[0] + "." : "")}";
     }
     
     private static string FullName(string lastName, string? firstName, string? middleName)
@@ -30,6 +31,28 @@ public static class PersonNameExtensions
     }
     
     public static IEnumerable<string> ToFullNames(this IEnumerable<BasePersonEntity> entities)
+    {
+        return entities.Select(ToFullName).ToArray();
+    }
+
+
+
+    public static string ToShortName(this BasePersonViewModel entity)
+    {
+        return ShortName(entity.LastName, entity.FirstName, entity.MiddleName);
+    }
+
+    public static string ToFullName(this BasePersonViewModel entity)
+    {
+        return FullName(entity.LastName, entity.FirstName, entity.MiddleName);
+    }
+
+    public static IEnumerable<string> ToShortNames(this IEnumerable<BasePersonViewModel> entities)
+    {
+        return entities.Select(ToShortName).ToArray();
+    }
+
+    public static IEnumerable<string> ToFullNames(this IEnumerable<BasePersonViewModel> entities)
     {
         return entities.Select(ToFullName).ToArray();
     }

@@ -1,0 +1,75 @@
+﻿@page "{id:int?}"
+@using LabU.Core.Identity
+@model EditModel
+@{
+    ViewData["Title"] = "Редактирование пользователя";
+}
+<h3>@ViewData["Title"]</h3>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form method="post">
+            <div asp-validation-summary="All"></div>
+            @Html.HiddenFor(x => x.Student.Id)
+
+            <div class="form-group">
+                <label asp-for="@Model.Student.Username" class="control-label"></label>
+                <input asp-for="@Model.Student.Username" class="form-control" />
+                <span asp-validation-for="@Model.Student.Username" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Student.Email" class="control-label"></label>
+                <input asp-for="@Model.Student.Email" class="form-control" />
+                <span asp-validation-for="@Model.Student.Email" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Student.IsEmailConfirmed" class="control-label"></label>
+                <input asp-for="@Model.Student.IsEmailConfirmed" />
+            </div>
+
+            <br />
+            <div class="form-group">
+                <label asp-for="@Model.Student.LastName" class="control-label"></label>
+                <input asp-for="@Model.Student.LastName" class="form-control" />
+                <span asp-validation-for="@Model.Student.LastName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Student.FirstName" class="control-label"></label>
+                <input asp-for="@Model.Student.FirstName" class="form-control" />
+                <span asp-validation-for="@Model.Student.FirstName" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Student.MiddleName" class="control-label"></label>
+                <input asp-for="@Model.Student.MiddleName" class="form-control" />
+                <span asp-validation-for="@Model.Student.MiddleName" class="text-danger"></span>
+            </div>
+
+            <br />
+            <div class="form-group">
+                <label asp-for="@Model.Student.Function" class="control-label"></label>
+                <input asp-for="@Model.Student.Function" class="form-control" />
+                <span asp-validation-for="@Model.Student.Function" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.Student.Address" class="control-label"></label>
+                <input asp-for="@Model.Student.Address" class="form-control" />
+                <span asp-validation-for="@Model.Student.Address" class="text-danger"></span>
+            </div>
+
+            <br />
+            <div class="form-group">
+                <label asp-for="@Model.Student.IsActiveAccount" class="control-label"></label>
+                <input asp-for="@Model.Student.IsActiveAccount" disabled="@(Model.Student.Id == 1 && User.IsInRole(UserRoles.ADMINISTRATOR))"/>
+                @if (Model.Student.Id == 1 && User.IsInRole(UserRoles.ADMINISTRATOR))
+                {
+                    <p>Вы не можете деактивировать учетную запись главного пользователя</p>
+                }
+            </div>
+
+            <br />
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a asp-page="./Index" class="btn btn-light">Отмена</a>
+        </form>
+
+    </div>
+</div>

@@ -1,5 +1,6 @@
 ﻿using LabU.Core.Entities;
 using LabU.Core.Entities.Identity;
+using System.Linq.Expressions;
 
 namespace LabU.Core.Interfaces;
 
@@ -18,6 +19,13 @@ public interface IUserService
     /// <param name="user"></param>
     /// <returns></returns>
     Task<IEnumerable<RoleEntity>> GetUserRolesAsync(UserEntity user);
+
+    Task<IEnumerable<UserEntity>> GetAllUsers();
+    Task<IEnumerable<UserEntity>> GetUsersAsync(
+        Expression<Func<UserEntity, bool>>? filter = null,
+        Func<IQueryable<UserEntity>, IOrderedQueryable<UserEntity>>? orderBy = null,
+        string? includeProps = "");
+    Task<IEnumerable<BasePersonEntity>> GetAllPersons();
     
     /// <summary>
     /// Добавляет роль пользователю
@@ -26,7 +34,13 @@ public interface IUserService
     /// <param name="role"></param>
     /// <returns></returns>
     Task<bool> AddToRoleAsync(UserEntity user, RoleEntity role);
-    
+
+    Task<bool> AddToRoleAsync(int[] userIds, int roleId);
+
+    Task<bool> UpdateUserRolesAsync(int userId, int[] roles);
+
+    Task<bool> UpdateRolesAsync(UserEntity user, RoleEntity[] roles);
+
     /// <summary>
     /// Удаляет пользователя из роли
     /// </summary>
@@ -35,9 +49,12 @@ public interface IUserService
     /// <returns></returns>
     Task<bool> RemoveFromRoleAsync(UserEntity user, RoleEntity role);
 
-    void ResetLoginAttemptsCount(UserEntity user);
+    Task<bool> RemoveFromRoleAsync(int[] userIds, int roleId);
+
+    bool ResetLoginAttemptsCount(UserEntity user);
     
-    Task<bool> CreateUserAsync(UserEntity user);
+    Task<int> CreateUserAsync(UserEntity user);
     Task<bool> UpdateUserAsync(UserEntity user);
     Task<bool> RemoveUserAsync(UserEntity user);
+    Task<bool> RemoveUserAsync(int id);
 }

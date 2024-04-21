@@ -1,20 +1,16 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using LabU.Core.Entities.Identity;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace LabU.Core.Entities
 {
-    public abstract class BasePersonEntity
+    public abstract class BasePersonEntity: BaseEntity
     {
-        [Key]
-        [ForeignKey(nameof(Account))]
-        public int Id { get; set; }
 
         public string? LastName { get; set; }
         public string? FirstName { get; set; }
         public string? MiddleName { get; set; }
 
-        public string? Email { get; set; }
-
+        [ForeignKey(nameof(Id))]
         public UserEntity? Account { get; set; }
 
         /// <summary>

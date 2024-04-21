@@ -1,0 +1,41 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Преподаватели";
+}
+
+<h3>@ViewData["Title"]</h3>
+
+<p><a asp-page="./Add" class="btn btn-outline-primary">Добавить преподавателя</a>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead class="align-top">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].FullName)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].Email)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].Function)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].Address)</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var teacher in Model.Teachers)
+            {
+                <tr>
+                    <th scope="row">@teacher.Id</th>
+                    <td>@Html.DisplayFor(x => teacher.FullName)</td>
+                    <td>@Html.DisplayFor(x => teacher.Email)</td>
+                    <td>@Html.DisplayFor(x => teacher.Function)</td>
+                    <td>@Html.DisplayFor(x => teacher.Address)</td>
+                    <td>
+                        <a class="btn btn-sm btn-primary" asp-page="./Edit" asp-route-id="@teacher.Id">Изменить</a>
+                        <a class="btn btn-sm btn-danger" asp-page="./Remove" asp-route-id="@teacher.Id">Удалить</a>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

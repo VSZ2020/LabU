@@ -1,54 +1,87 @@
 ﻿@page
+@using LabU.Core.Identity
 @model LabU.Pages.Student.IndexModel
 @{
     ViewData["Title"] = "Главная";
 }
 <h3>Активные задачи</h3>
-<table class="table">
-    <thead>
-        <tr>
-            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Name)</td>
-            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Deadline)</td>
-            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Status)</td>
-            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Subject)</td>
-            <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Reviewers)</td>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach(var task in Model.ActiveTasks)
-        {
+@if (Model.ActiveTasks.Count > 0)
+{
+    <table class="table">
+        <thead>
             <tr>
-                <td>@Html.DisplayFor(x => task.Name)</td>
-                <td>@Html.DisplayFor(x => task.Deadline)</td>
-                <td>@Html.DisplayFor(x => task.Status)</td>
-                <td>@Html.DisplayFor(x => task.Subject)</td>
-                <td>@Html.DisplayFor(x => task.Reviewers)</td>
+                <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Name)</td>
+                <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Deadline)</td>
+                <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Status)</td>
+                <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Subject)</td>
+                <td>@Html.DisplayNameFor(m => m.ActiveTasks[0].Reviewers)</td>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var task in Model.ActiveTasks)
+            {
+                <tr>
+                    <td><a asp-page="./Task/Index" asp-route-id="@task.Id" class="btn btn-group">@task.Name</a></td>
+                    <td>@Html.DisplayFor(x => task.Deadline)</td>
+                    <td>@Html.DisplayFor(x => task.Status)</td>
+                    <td>@Html.DisplayFor(x => task.Subject)</td>
+                    <td>@Html.DisplayFor(x => task.Reviewers)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <span class="text-center">Нет текущих задач</span>
+}
 
 <h3>Выполненные задачи</h3>
-<table class="table">
-    <thead>
-    <tr>
-        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Name)</td>
-        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Deadline)</td>
-        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Status)</td>
-        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Subject)</td>
-        <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Reviewers)</td>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach(var task in Model.CompletedTasks)
-    {
-        <tr>
-            <td>@Html.DisplayFor(x => task.Name)</td>
-            <td>@Html.DisplayFor(x => task.Deadline)</td>
-            <td>@Html.DisplayFor(x => task.Status)</td>
-            <td>@Html.DisplayFor(x => task.Subject)</td>
-            <td>@Html.DisplayFor(x => task.Reviewers)</td>
-        </tr>
-    }
-    </tbody>
-</table>
+@if(Model.CompletedTasks.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Name)</td>
+                <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Deadline)</td>
+                <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Status)</td>
+                <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Subject)</td>
+                <td>@Html.DisplayNameFor(m => m.CompletedTasks[0].Reviewers)</td>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var task in Model.CompletedTasks)
+            {
+                <tr>
+                    <td><a asp-route="./Task/Index" asp-route-id="@task.Id" class="btn btn-group">@task.Name</a></td>
+                    <td>@Html.DisplayFor(x => task.Deadline)</td>
+                    <td>@Html.DisplayFor(x => task.Status)</td>
+                    <td>@Html.DisplayFor(x => task.Subject)</td>
+                    <td>@Html.DisplayFor(x => task.Reviewers)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <span class="text-center">Нет завершенных задач</span>
+}
+
+
+<br />
+<h4>Ваши роли: </h4>
+<ul>
+@if (User.IsInRole("admin"))
+{
+    <li>Admin</li>
+}
+@if (User.IsInRole("teacher"))
+{
+    <li>Teacher</li>
+}
+@if (User.IsInRole("student"))
+{
+    <li>Student</li>
+}
+</ul>

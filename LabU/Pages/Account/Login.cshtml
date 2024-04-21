@@ -2,20 +2,35 @@
 @model LabU.Pages.Account.Login
 
 @{
-    ViewData["Title"] = "Вход в систему";
+    ViewData["Title"] = "Вход в систему Lab-U";
 }
-<h2>@ViewData["Title"]</h2>
-<form method="post" asp-route-returnUrl="@Model.ReturnUrl">
-    @Html.LabelFor(x => x.Username)
-    @Html.TextBoxFor(x => x.Username)
-    <span asp-validation-for="Username"></span>
-    <br/>
-    @Html.LabelFor(x => x.Password)
-    @Html.TextBoxFor(x => x.Password)
-    <span asp-validation-for="Password"></span>
-    <br/>
-    @Html.LabelFor(x => x.RememberMe)
-    @Html.CheckBoxFor(x => x.RememberMe)
-    <br/>
-    <input type="submit" value="Войти" class="btn btn-primary"/>
-</form>
+<div align="center">
+    <h2>@ViewData["Title"]</h2>
+    <div >
+        <div class="col-md-4">
+            <form method="post" asp-route-returnUrl="@Model.ReturnUrl">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="@Model.Username" class="control-label" ></label>
+                    <input asp-for="@Model.Username" class="form-control" />
+                    <span asp-validation-for="Username"></span>
+                </div>
+                <br />
+                <div class="form-group">
+                    <label asp-for="@Model.Password" class="control-label" ></label>
+                    <input asp-for="@Model.Password" class="form-control" />
+                    <span asp-validation-for="Password"></span>
+                </div>
+                <br />
+                <div class="form-group">
+                    @Html.LabelFor(x => x.RememberMe)
+                    @Html.CheckBoxFor(x => x.RememberMe)
+                </div>
+                <br />
+                <div>
+                    <input type="submit" value="Войти" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

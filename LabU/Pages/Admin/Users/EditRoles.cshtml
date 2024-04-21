@@ -1,0 +1,33 @@
+﻿@page
+@using LabU.Core.Identity
+@model LabU.Pages.Admin.Users.EditRolesModel
+@{
+    ViewData["Title"] = "Роли";
+}
+<h3>Управление ролями пользователя @Model.Username</h3>
+<div class="row">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <form method="post">
+        @Html.HiddenFor(x => x.UserId)
+        <table class="table table-md">
+            <thead>
+                <tr>
+                    <td scope="col">Название роли</td>
+                    <td scope="col">Назначена</td>
+                </tr>
+            </thead>
+            @foreach (var role in Model.Roles)
+            {
+                <tr>
+                    <td>@role.Name</td>
+                    <td class="col-1"><input type="checkbox" name="roles" value="@role.Name" @(role.IsChecked ? "checked=\"checked\"" : "") @(Model.UserId == 1 && role.Name == UserRoles.ADMINISTRATOR ? "disabled" : "") /></td>
+                </tr>
+            }
+            <caption>Перечень ролей, присвоенных пользователю</caption>
+        </table>
+        
+        <button type="submit" class="btn btn-primary" >Сохранить</button>
+        <a class="btn btn-light" asp-page="./Index">Отмена</a>
+    </form>
+</div>
+

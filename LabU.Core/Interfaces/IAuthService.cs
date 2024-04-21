@@ -9,7 +9,7 @@ namespace LabU.Core.Interfaces
 {
     public interface IAuthService
     {
-        Task<UserEntity?> AuthUserAsync(string login, string password);
+        Task<bool?> TryAuthUserAsync(string login, string password);
 
         int GetLoginAttemptsCount(string login, int maxAttemptsCount = 5);
     }

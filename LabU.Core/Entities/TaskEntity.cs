@@ -1,4 +1,5 @@
 ﻿using LabU.Core;
+using LabU.Core.Enums;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -20,7 +21,12 @@ namespace LabU.Core.Entities
         /// <summary>
         /// Текущий статус ответа на задание: Отправлено, На проверке, Отправлено на доработку, Зачтено и др.
         /// </summary>
-        public ResponseState? Status { get; set; }
+        public ResponseState Status { get; set; }
+
+        /// <summary>
+        /// Тип задания
+        /// </summary>
+        public TaskTypes TaskType { get; set; }
 
         /// <summary>
         /// Срок ответа на задание

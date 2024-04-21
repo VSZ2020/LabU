@@ -4,7 +4,7 @@ using LabU.Core.Entities;
 
 namespace LabU.Core.Interfaces
 {
-    public interface ITaskService
+    public interface ITaskRepository
     {
         Task<IEnumerable<TaskEntity>> GetAllAsync(int subjectId, int personId = 0);
 
@@ -14,6 +14,7 @@ namespace LabU.Core.Interfaces
             string? includeProps = "");
         
         Task<TaskEntity?> FindByIdAsync(int id);
+        Task<TaskEntity?> FindByIdAsync(int id, string? includeProps = null);
 
         /// <summary>
         /// Проверяет принадлежность задания пользователю
@@ -29,5 +30,8 @@ namespace LabU.Core.Interfaces
         bool AddTask(TaskEntity task);
         bool EditTask(TaskEntity task);
         bool RemoveTask(TaskEntity task);
+
+        Task<bool> AttachPerson(int userId, int taskId);
+        Task<bool> DetachPersonAsync(int userId, int taskId);
     }
 }

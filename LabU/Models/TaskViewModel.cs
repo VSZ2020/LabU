@@ -6,9 +6,11 @@ namespace LabU.Models;
 public class TaskViewModel
 {
     public int Id { get; set; }
+
     /// <summary>
     /// Название задания
     /// </summary>
+    [Display(Name = "Наименование")]
     public string Name { get; set; } = "Задание без названия";
 
     /// <summary>
@@ -20,7 +22,8 @@ public class TaskViewModel
     /// <summary>
     /// Текущий статус ответа на задание: Отправлено, На проверке, Отправлено на доработку, Зачтено и др.
     /// </summary>
-    public ResponseState? Status { get; set; }
+    [Display(Name = "Состояние")]
+    public string? Status { get; set; }
 
     /// <summary>
     /// Срок ответа на задание
@@ -51,6 +54,6 @@ public class TaskViewModel
     /// <summary>
     /// Перечень студентов, которым назначено задание
     /// </summary>
-    [Display(Name="Состав команды/бригады")]
+    [Display(Name="Состав команды")]
     public string? Students { get; set; }
 }

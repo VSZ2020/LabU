@@ -1,0 +1,44 @@
+﻿@page
+@model LabU.Pages.Admin.Users.IndexModel
+@{
+    ViewData["Title"] = "Пользователи";
+}
+
+<h3>Пользователи системы</h3>
+
+<div class="table-responsive">
+    <table class="table">
+        <thead class="align-top">
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Users[0].Username)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Users[0].IsActiveAccount)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Users[0].FullName)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Users[0].Email)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Users[0].IsEmailConfirmed)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Users[0].LastVisit)</th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in Model.Users)
+            {
+                <tr>
+                    <th scope="row">@user.Id</th>
+                    <td>@Html.DisplayFor(x => user.Username)</td>
+                    <td>@Html.DisplayFor(x => user.IsActiveAccount)</td>
+                    <td>@Html.DisplayFor(x => user.FullName)</td>
+                    <td>@Html.DisplayFor(x => user.Email)</td>
+                    <td>@Html.DisplayFor(x => user.IsEmailConfirmed)</td>
+                    <td>@Html.DisplayFor(x => user.LastVisit)</td>
+                    <td>
+                        <a class="btn btn-sm btn-success" asp-page="./EditRoles" asp-route-id="@user.Id">Роли</a>
+                        <a class="btn btn-sm btn-primary" asp-page="./ResetPassword" asp-route-id="@user.Id">Сбросить пароль</a>
+                        <a class="btn btn-sm btn-danger" asp-page="./Remove" asp-route-id="@user.Id">Удалить</a>
+                    </td>
+
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

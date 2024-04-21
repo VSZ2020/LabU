@@ -12,7 +12,6 @@ namespace LabU.Core.Dto
         /// <summary>
         /// Описание задания
         /// </summary>
-        [Display(Name = "Описание")]
         public string? Description { get; set; }
 
         /// <summary>
@@ -23,7 +22,6 @@ namespace LabU.Core.Dto
         /// <summary>
         /// Срок ответа на задание
         /// </summary>
-        [Display(Name = "Срок ответа")]
         [DataType(DataType.DateTime)]
         public DateTime? Deadline { get; set; }
 
@@ -35,13 +33,11 @@ namespace LabU.Core.Dto
         /// <summary>
         /// Перечень проверяющих преподавателей
         /// </summary>
-        [Display(Name = "Проверяющие")]
         public string? Reviewers { get; set; }
 
         /// <summary>
         /// Дисциплина, к которой привязано задание
         /// </summary>
-        [Display(Name="Дисциплина")]
         public string? Subject { get; set; }
 
         public int SubjectId { get; set; }
@@ -49,7 +45,6 @@ namespace LabU.Core.Dto
         /// <summary>
         /// Перечень студентов, которым назначено задание
         /// </summary>
-        [Display(Name="Состав команды/бригады")]
         public string? Students { get; set; }
     }
 }

@@ -1,0 +1,25 @@
+﻿@page
+@model LabU.Pages.Admin.Roles.IndexModel
+@{
+    ViewData["Title"] = "Доступные роли";
+}
+<h3>@ViewData["Title"]</h3>
+<p><a asp-page="./Add" class="btn btn-outline-primary">Добавить роль</a></p>
+<table class="table table-sm">
+    <thead>
+        <tr>
+            <td>@Html.DisplayNameFor(x => x.Roles[0].Name)</td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var role in Model.Roles){
+            <tr>
+                <td>@role.Name</td>
+                <td>
+                    <a asp-page="./Remove" asp-route-id="@role.Id" class="btn btn-sm btn-danger">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

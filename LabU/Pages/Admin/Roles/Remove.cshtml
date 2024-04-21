@@ -1,0 +1,21 @@
+﻿@page "{id:int?}"
+@model LabU.Pages.Admin.Roles.RemoveModel
+@{
+}
+<h3>Удаление роли</h3>
+<p>Вы уверены, что хотите удалить роль (@Model.RoleName)?</p>
+<h4>Следующим пользователям будет назначена роль гостя, и они могут потерять доступ к системе</h4>
+<form method="post">
+    <ul>
+        @foreach (var user in Model.UsersToUpdate)
+        {
+            <li>
+                @Html.HiddenFor(x => user.Id)
+                @Html.DisplayFor(x => user.Username)
+            </li>
+        }
+    </ul>
+    <br />
+    <button type="submit" class="btn btn-danger">Подтвердить</button>
+</form>
+<a asp-page="./Index" class="btn btn-lg">Отмена</a>

@@ -1,0 +1,28 @@
+﻿@page "{id:int?}"
+@model LabU.Pages.Admin.Teachers.RemoveModel
+@{
+}
+<p>Вы уверены, что хотите удалить преподавателя <b>@Model.FullName</b>?</p>
+<form method="post">
+    <div asp-validation-summary="All"></div>
+    @Html.HiddenFor(m => m.TeacherId)
+
+    <p>Преподаватель будет автоматически отвязан от прикрепленных заданий и дисциплин. Перечень затрагиваемых дисциплин:</p>
+    <ul>
+        @foreach (var subject in Model.Subjects)
+        {
+            <li>@subject.Name</li>
+        }
+    </ul>
+    <br />
+    <p>Перечень затрагиваемых заданий:</p>
+    <ul>
+        @foreach (var task in Model.Tasks)
+        {
+            <li>@task.Name</li>
+        }
+    </ul>
+
+    <button type="submit" class="btn btn-danger">Удалить</button>
+    <a asp-page="./Index" class="btn btn-light">Отмена</a>
+</form>
