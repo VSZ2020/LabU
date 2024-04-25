@@ -1,30 +1,27 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Data;
-using System.Net;
-using System.Security.Claims;
-using LabU.Core.Entities.Identity;
+﻿using LabU.Core.Entities.Identity;
 using LabU.Core.Interfaces;
-using LabU.Data.Repository;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.CodeAnalysis.Elfie.Serialization;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 
 namespace LabU.Pages.Account;
 
 public class Login : PageModel
 {
-    public Login(UnitOfWork uow)
+    public Login(IUserService userService, IAuthService authService)
     {
-        _uow = uow;
+        _userService = userService;
+        _authService = authService;
     }
 
-    private readonly UnitOfWork _uow;
+    private readonly IUserService _userService;
+    private readonly IAuthService _authService;
     
     [BindProperty]
-    [Required(ErrorMessage = "Не указан логин")]
+    [Required(ErrorMessage = "Введите логин")]
     [Display(Name = "Логин")]
     public string? Username { get; set; }
     
@@ -48,23 +45,23 @@ public class Login : PageModel
             return Page();
         }
 
-        UserEntity? user = await _uow.UserService.FindByUsernameAsync(Username!);
+        UserEntity? user = await _userService.FindByUsernameAsync(Username!);
         if (user == null)
         {
             ModelState.AddModelError("","Пользователя с данным логином не существует");
             return Page();
         }
-        if (await _uow.AuthService.TryAuthUserAsync(Username!, Password!) == null)
+        if (await _authService.TryAuthUserAsync(Username!, Password!))
         {
-            ModelState.AddModelError("","Неверный пароль для входа");
-            return Page();
+            await AuthenticateAsync(user);
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                return Redirect(returnUrl ?? "/Index");
+            return Redirect("/Index");
         }
-        
-        await AuthenticateAsync(user);
-        
-        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            return Redirect(returnUrl ?? "/Index");
-        return Redirect("/Index");
+        else
+            ModelState.AddModelError("", "Неверный пароль");
+        return Page();
     }
 
     private async Task AuthenticateAsync(UserEntity user)
@@ -88,8 +85,7 @@ public class Login : PageModel
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
         await HttpContext.SignInAsync(claimsPrincipal);
 
-        //user.LastVisit = DateTime.Now;
-        //await _uow.UserService.UpdateUserAsync(user);
-        //await _uow.SaveChangesAsync();
+        user.LastVisit = DateTime.Now;
+        await _userService.UpdateUserAsync(user);
     }
 }

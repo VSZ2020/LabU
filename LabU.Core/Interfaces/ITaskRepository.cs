@@ -6,9 +6,9 @@ namespace LabU.Core.Interfaces
 {
     public interface ITaskRepository
     {
-        Task<IEnumerable<TaskEntity>> GetAllAsync(int subjectId, int personId = 0);
+        Task<IEnumerable<TaskEntity>> GetTasksAsync(int subjectId, int personId = 0);
 
-        Task<IEnumerable<TaskEntity>> GetAllAsync(
+        Task<IEnumerable<TaskEntity>> GetTasksAsync(
             Expression<Func<TaskEntity,bool>>? filter = null, 
             Func<IQueryable<TaskEntity>,IOrderedQueryable<TaskEntity>>? orderBy = null,
             string? includeProps = "");
@@ -33,5 +33,7 @@ namespace LabU.Core.Interfaces
 
         Task<bool> AttachPerson(int userId, int taskId);
         Task<bool> DetachPersonAsync(int userId, int taskId);
+
+        Task<bool> ChangeTaskStatus(int taskId, ResponseState newStatus);
     }
 }

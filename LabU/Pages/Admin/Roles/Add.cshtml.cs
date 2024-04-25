@@ -1,4 +1,6 @@
 using LabU.Core.Entities.Identity;
+using LabU.Core.Identity;
+using LabU.Core.Interfaces;
 using LabU.Data.Repository;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -9,13 +11,13 @@ namespace LabU.Pages.Admin.Roles
 {
     public class AddModel : PageModel
     {
-        public AddModel(UnitOfWork uow, ILogger<AddModel> logger)
+        public AddModel(IRoleService roleService, ILogger<AddModel> logger)
         {
-            _uow = uow;
+            _roleService = roleService;
             _logger = logger;
         }
 
-        private readonly UnitOfWork _uow;
+        private readonly IRoleService _roleService;
         readonly ILogger<AddModel> _logger;
 
         [Required]
@@ -24,19 +26,30 @@ namespace LabU.Pages.Admin.Roles
         public string? Name { get; set; }
 
 
-        public void OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
+            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated || !User.IsInRole(UserRoles.ADMINISTRATOR))
+            {
+                return Unauthorized();
+            }
 
+            Name = "Новая роль";
+            return Page();
         }
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated || !User.IsInRole(UserRoles.ADMINISTRATOR))
+            {
+                return Unauthorized();
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            var availableRoles = await _uow.RoleService.GetRoles();
+            var availableRoles = await _roleService.GetRoles();
             if (availableRoles.Any(r => r.Name == Name))
             {
                 ModelState.AddModelError("", "Роль с таким названием уже существует");
@@ -45,12 +58,11 @@ namespace LabU.Pages.Admin.Roles
 
             try
             {
-                await _uow.RoleService.CreateAsync(new RoleEntity()
+                await _roleService.CreateAsync(new RoleEntity()
                 {
                     Name = Name,
                     NormalizedName = Name.ToUpper()
                 });
-                await _uow.SaveChangesAsync();
             }
             catch(DbUpdateException ex)
             {

@@ -6,7 +6,7 @@ namespace LabU.Core.Entities
     public class StudentEntity : BasePersonEntity
     {
         #region AcademicGroup
-        public int AcademicGroupId { get; set; }
+        public int? AcademicGroupId { get; set; }
 
         /// <summary>
         /// Академическая группа студента. Например, ФтМ-120302
@@ -18,7 +18,7 @@ namespace LabU.Core.Entities
         /// <summary>
         /// Номер курса обучения
         /// </summary>
-        public int Cource { get; set; }
+        public int Course { get; set; }
 
         /// <summary>
         /// Идентификатор команды/бригады

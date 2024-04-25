@@ -1,19 +1,16 @@
 ﻿@page
-@model LabU.Pages.Admin.Alerts.Control
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@model LabU.Pages.Admin.Alerts.ControlModel
 
 @{
-    Layout = null;
+    ViewData["Title"] = "Управление уведомлениями";
 }
 
-<!DOCTYPE html>
-
-<html>
-<head>
-    <title></title>
-</head>
-<body>
-<div>
-    
-</div>
-</body>
-</html>
+<h3>@ViewData["Title"]</h3>
+<form method="post">
+    <div class="form-floating mb-3">
+        <input asp-for="@Model.InformationMessage" class="form-control" />
+        <label asp-for="@Model.InformationMessage"></label>
+    </div>
+    <button type="submit" class="btn btn-primary">Сохранить</button>
+</form>

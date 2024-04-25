@@ -1,0 +1,35 @@
+﻿@page
+@model LabU.Pages.Admin.Subjects.IndexModel
+@{
+    ViewData["Title"] = "Управление дисциплинами";
+}
+<h1>@ViewData["Title"]</h1>
+<p><a asp-page="./Add" class="btn btn-sm btn-outline-primary">Добавить дисциплину</a></p>
+<table class="table">
+    <thead>
+        <tr>
+            <td>#</td>
+            <td>@Html.DisplayNameFor(x => x.Subjects[0].Name)</td>
+            <td>@Html.DisplayNameFor(x => x.Subjects[0].AcademicTerm)</td>
+            <td>@Html.DisplayNameFor(x => x.Subjects[0].AcademicYear)</td>
+            <td></td>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var item in Model.Subjects)
+        {
+            <tr>
+                <td>@Html.DisplayFor(x => item.Id)</td>
+                <td>@Html.DisplayFor(x => item.Name)</td>
+                <td>@Html.DisplayFor(x => item.AcademicTerm)</td>
+                <td>@Html.DisplayFor(x => item.AcademicYear)</td>
+                <td>
+                    <a asp-page="./AttachTeachers" asp-route-id="@item.Id" class="btn btn-sm btn-light">Преподаватели</a>
+                    <a asp-page="./AttachStudents" asp-route-id="@item.Id" class="btn btn-sm btn-light">Студенты</a>
+                    <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-primary">Изменить</a>
+                    <a asp-page="./Remove" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Удалить</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

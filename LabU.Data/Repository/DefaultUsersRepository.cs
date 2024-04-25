@@ -7,20 +7,19 @@ using System.Linq.Expressions;
 
 namespace LabU.Data.Repository
 {
-    public class DefaultUsersRepository : IUserService, IDisposable
+    public class DefaultUsersRepository : BaseRepository, IUserService
     {
-        public DefaultUsersRepository(DataContext context)
+        public DefaultUsersRepository(DataContext context): base(context)
         {
-            _context = context;
+            
         }
-
-        private readonly DataContext _context;
 
 
         public async Task<bool> AddToRoleAsync(int[] userIds, int roleId)
         {
             var entities = Enumerable.Range(0, userIds.Length).Select(i => new UserRoleTable() { RoleId = roleId, UserId = userIds[i] }).ToList();
             await _context.AddRangeAsync(entities);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -30,71 +29,58 @@ namespace LabU.Data.Repository
             if (entity != null)
                 return false;
             _context.UserRoleTable.Add(new UserRoleTable() { RoleId = role.Id, UserId = user.Id });
-
+            await _context.SaveChangesAsync();
             return true;
-        }
-
-        public async Task<bool> UpdateRolesAsync(UserEntity user, RoleEntity[] roles)
-        {
-            var entity = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == user.Id);
-            if (entity != null)
-            {
-                entity.Roles!.Clear();
-                foreach(var role in roles)
-                {
-                    entity.Roles.Add(role);
-                }
-                _context.Entry(entity).State = EntityState.Modified;
-            }
-            return false;
         }
 
         public async Task<bool> UpdateUserRolesAsync(int userId, int[] roles)
         {
-            var entity = await _context.Users.Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == userId);
-            if (entity != null)
-            {
-                entity.Roles!.Clear();
-                foreach (var role in _context.Roles.Where(r => roles.Contains(r.Id)))
-                {
-                    entity.Roles.Add(role);
-                }
-                _context.Entry(entity).State = EntityState.Modified;
-                return true;
-            }
-            return false;
-        }
+            var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (entity == null)
+                return false;
 
-        public Task<bool> ChangePasswordAsync(UserEntity user, string oldPassword, string newPassword)
-        {
-            throw new NotImplementedException();
-        }
+            var userRoles = _context.UserRoleTable.Where(r => r.UserId == userId).AsNoTracking().Select(r => r.RoleId);
+            var rolesToAdd = roles.Except(userRoles);
+            var rolesToRemove = userRoles.Except(roles);
 
-        public Task<bool> ChangePasswordAsync(UserEntity user, string newPassword)
-        {
-            throw new NotImplementedException();
+            foreach (var role in rolesToAdd)
+                _context.Add(new UserRoleTable() { UserId = userId, RoleId = role});
+
+            foreach (var role in rolesToRemove)
+                _context.Remove(new UserRoleTable() { UserId = userId, RoleId = role });
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<int> CreateUserAsync(UserEntity user)
         {
             var userEntity = await _context.Users.AddAsync(user);
-            
+            await _context.SaveChangesAsync();
             return userEntity.Entity.Id;
         }
 
         public async Task<UserEntity?> FindByEmailAsync(string email)
         {
-            return await _context.Users.AsNoTracking().Include(u => u.Roles).FirstOrDefaultAsync(u => u.Email == email);
+            return await _context.Users
+                .AsNoTracking()
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Email == email);
         }
 
         public async Task<UserEntity?> FindByIdAsync(int id)
         {
-            return await _context.Users.AsNoTracking().Include(u => u.Roles).FirstOrDefaultAsync(u => u.Id == id);
+            return await _context.Users
+                .AsNoTracking()
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Id == id);
         }
 
         public async Task<UserEntity?> FindByUsernameAsync(string username)
         {
-            return await _context.Users.AsNoTracking().Include(u => u.Roles).FirstOrDefaultAsync(u => u.Username == username);
+            return await _context.Users
+                .AsNoTracking()
+                .Include(u => u.Roles)
+                .FirstOrDefaultAsync(u => u.Username == username);
         }
 
         public async Task<IEnumerable<RoleEntity>> GetUserRolesAsync(UserEntity user)
@@ -106,7 +92,7 @@ namespace LabU.Data.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserEntity>> GetAllUsers()
+        public async Task<IEnumerable<UserEntity>> GetUsers()
         {
             return await _context.Users
                 .AsNoTracking()
@@ -114,25 +100,12 @@ namespace LabU.Data.Repository
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<UserEntity>> GetUsersAsync(
+        public Task<IEnumerable<UserEntity>> GetUsersAsync(
             Expression<Func<UserEntity, bool>>? filter = null,
             Func<IQueryable<UserEntity>, IOrderedQueryable<UserEntity>>? orderBy = null,
             string? includeProps = "")
         {
-            IQueryable<UserEntity> users = _context.Users.AsNoTracking();
-
-            if (filter != null)
-                users = users.Where(filter);
-
-            if (!string.IsNullOrEmpty(includeProps))
-            {
-                foreach (var prop in includeProps.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    users = users.Include(prop);
-                }
-            }
-
-            return orderBy != null ? await orderBy(users).ToListAsync() : await users.ToListAsync();
+            return base.GetAllAsync(filter, orderBy, includeProps);
         }
 
         public async Task<IEnumerable<BasePersonEntity>> GetAllPersons()
@@ -148,14 +121,17 @@ namespace LabU.Data.Repository
             if (entity == null)
                 return false;
             _context.UserRoleTable.Remove(entity);
-
+            await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> RemoveFromRoleAsync(int[] userIds, int roleId)
         {
-            var entities = await _context.UserRoleTable.Where(u => u.RoleId == roleId && userIds.Contains(u.UserId)).ToListAsync();
+            var entities = await _context.UserRoleTable
+                .Where(u => u.RoleId == roleId && userIds.Contains(u.UserId))
+                .ToListAsync();
             _context.RemoveRange(entities);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -166,54 +142,42 @@ namespace LabU.Data.Repository
                 return false;
 
             _context.Users.Remove(entity);
+            await _context.SaveChangesAsync();
+
             return true;
         }
 
         public async Task<bool> RemoveUserAsync(int id)
         {
-            var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == id);
-            if (entity == null)
-                return false;
+            await _context.Users.Where(u => u.Id == id).ExecuteDeleteAsync();
 
-            _context.Users.Remove(entity);
             return true;
         }
 
         public bool ResetLoginAttemptsCount(UserEntity user)
         {
-            var entity = _context.Users.FirstOrDefault(u => u.Id == user.Id);
-            if (entity != null)
-            {
-                entity.AccessFiledCount = 0;
-                return true;
-            }
-            return false;
+            _context.Users.Where(u => u.Id == user.Id).ExecuteUpdate(u => u.SetProperty(p => p.AccessFiledCount, p => 0));
+            return true;
         }
 
         public async Task<bool> UpdateUserAsync(UserEntity user)
         {
-            _context.Users.Entry(user).State = EntityState.Modified;
-            _context.Users.Update(user);
+            var entity = await _context.Users.FirstOrDefaultAsync(u => u.Id == user.Id);
+            if (entity == null)
+                return false;
+
+            entity.Username = user.Username;
+            entity.LastVisit = user.LastVisit;
+            entity.IsActiveAccount = user.IsActiveAccount;
+            entity.IsEmailConfirmed = user.IsEmailConfirmed;
+            entity.SecurityStamp = user.SecurityStamp;
+            entity.Email = user.Email;
+            entity.AccessFiledCount = user.AccessFiledCount;
+
+            _context.Users.Update(entity);
+            await _context.SaveChangesAsync();
+
             return true;
-        }
-
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,0 +1,70 @@
+﻿@page
+@model LabU.Pages.Account.IndexModel
+@{
+    ViewData["Title"] = "Профиль пользователя";
+}
+
+<h1>@ViewData["Title"]</h1>
+<table class="table table-borderless">
+    <tr>
+
+        <td>
+            <div class="col-md-4">
+                <form method="post">
+                    <div asp-validation-summary="All" class="text-danger"></div>
+                    @Html.HiddenFor(x => x.CurrentUser.Id)
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.Username" class="form-control" placeholder="Имя пользователя"/>
+                        <label asp-for="@Model.CurrentUser.Username"></label>
+                    </div>
+
+                    <label class="form-label text-black-50"><i>Для смены пароля введите старый пароль, новый пароль и подтверждение нового пароля</i></label>
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.OldPassword" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.OldPassword"></label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.Password" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.Password"></label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.ConfirmPassword" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.ConfirmPassword"></label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.LastName" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.LastName"></label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.FirstName" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.FirstName"></label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.MiddleName" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.MiddleName"></label>
+                    </div>
+
+                    <div class="form-floating mb-3">
+                        <input asp-for="@Model.CurrentUser.Email" class="form-control" />
+                        <label asp-for="@Model.CurrentUser.Email"></label>
+                    </div>
+
+                    <br />
+                    <button class="btn btn-primary">Сохранить изменения</button>
+                </form>
+
+                @if (ViewData["SaveStatus"] is string msg)
+                {
+                    <br />
+                    <div class="alert alert-success">@msg</div>
+                }
+            </div>
+        </td>
+    </tr>
+</table>

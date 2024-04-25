@@ -10,10 +10,10 @@ namespace LabU.Core.Interfaces
         /// </summary>
         /// <param name="taskId">Идентификатор задания</param>
         /// <returns></returns>
-        Task<IEnumerable<TaskResponseEntity>> GetAllAsync(int taskId);
+        Task<IEnumerable<TaskResponseEntity>> GetTaskResponsesAsync(int taskId);
 
-        bool AddResponse(TaskResponseEntity response);
-        bool EditResponse(TaskResponseEntity response);
-        bool RemoveResponse(TaskResponseEntity response);
+        Task<bool> AddResponseAsync(TaskResponseEntity response);
+        Task<bool> EditResponseAsync(TaskResponseEntity response);
+        Task<bool> RemoveResponseAsync(int responseId);
     }
 }

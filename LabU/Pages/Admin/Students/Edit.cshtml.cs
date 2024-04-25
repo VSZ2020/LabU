@@ -1,25 +1,35 @@
 using LabU.Core.Identity;
-using LabU.Data.Repository;
+using LabU.Core.Interfaces;
+using LabU.Mappers;
 using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
 namespace LabU.Pages.Admin.Students
 {
     public class EditModel : PageModel
     {
-        public EditModel(UnitOfWork u, ILogger<EditModel> logger)
+        public EditModel(IPersonRepository pr, IUserService us, IRoleService rs, IAcademicGroupsRepository agr, ILogger<EditModel> logger)
         {
-            _u = u;
+            _pr = pr;
+            _us = us;
+            _rs = rs;
+            _agr = agr;
             _logger = logger;
         }
 
-        readonly UnitOfWork _u;
+        readonly IPersonRepository _pr;
+        readonly IUserService _us;
+        readonly IRoleService _rs;
+        readonly IAcademicGroupsRepository _agr;
         readonly ILogger<EditModel> _logger;
 
         [BindProperty]
         public EditStudentViewModel Student { get; set; }
+
+        public SelectList AcademicGroups { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -33,7 +43,7 @@ namespace LabU.Pages.Admin.Students
                 return NotFound($"Идентификатор не задан");
             }
 
-            var entity = await _u.PersonService.FindStudentByIdAsync(id.Value);
+            var entity = await _pr.FindStudentByIdAsync(id.Value);
             if (entity == null)
                 return Redirect("./Index");
 
@@ -49,9 +59,12 @@ namespace LabU.Pages.Admin.Students
                 FirstName = entity.FirstName,
                 MiddleName = entity.MiddleName,
 
-                Course = entity.Cource,
+                Course = entity.Course,
                 AcademicGroupId = entity.AcademicGroupId,
+                CommandId = entity.CommandId,
             };
+
+            PopulateGroupsList(Student.AcademicGroupId);
 
             return Page();
         }
@@ -68,16 +81,20 @@ namespace LabU.Pages.Admin.Students
                 return NotFound("Идентификатора не существует");
             }
 
-            if (!ModelState.IsValid)
-            { return Page(); }
-
-            var entityStudent = await _u.PersonService.FindStudentByIdAsync(id.Value);
-            var entityAccount = await _u.UserService.FindByIdAsync(id.Value);
+            var entityStudent = await _pr.FindStudentByIdAsync(id.Value);
+            var entityAccount = await _us.FindByIdAsync(id.Value);
             if (entityStudent == null || entityAccount == null)
             {
                 ModelState.AddModelError("", "Сущность пользователя потеряна. Не удалось сохранить");
                 return Page();
             }
+
+            if (!ModelState.IsValid)
+            {
+                PopulateGroupsList(entityStudent.AcademicGroupId);
+                return Page();
+            }
+
 
             entityAccount.Username = Student.Username;
             entityAccount.Email = Student.Email;
@@ -88,23 +105,30 @@ namespace LabU.Pages.Admin.Students
             entityStudent.FirstName = Student.FirstName;
             entityStudent.MiddleName = Student.MiddleName;
 
-            entityStudent.Cource = Student.Course;
-            entityStudent.AcademicGroupId = Student.AcademicGroupId;
+            entityStudent.Course = Student.Course;
+            entityStudent.CommandId = Student.CommandId;
+            entityStudent.AcademicGroupId = Student.AcademicGroupId > 0 ? Student.AcademicGroupId : null;
 
             try
             {
-                await _u.PersonService.EditStudent(entityStudent);
-                await _u.UserService.UpdateUserAsync(entityAccount);
-                await _u.SaveChangesAsync();
+                await _pr.EditStudentAsync(entityStudent);
+                await _us.UpdateUserAsync(entityAccount);
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogError($"Can't save changes for student with Id = {id.Value}. Exception: {ex.Message}");
+                _logger.LogError($"Can't save changes for student with Id = {id.Value}. Exception: {ex.InnerException?.Message}");
                 ModelState.AddModelError("", "Не удалось сохранить изменения");
                 return Page();
             }
 
             return RedirectToPage("./Index");
+        }
+
+
+        private async void PopulateGroupsList(object selectedGroup = null)
+        {
+            var groups = (await _agr.GetAllGroupsAsync()).Select(AcademicGroupMapper.Map).ToList();
+            AcademicGroups = new SelectList(groups, nameof(AcademicGroupViewModel.Id), nameof(AcademicGroupViewModel.Name), selectedGroup);
         }
     }
 }

@@ -108,6 +108,11 @@ namespace LabU.Data
                         j.ToTable("UserRoleTable");
                     });
 
+            modelBuilder.Entity<TaskEntity>()
+                .HasMany(t => t.Responses)
+                .WithOne(r => r.Task)
+                .OnDelete(DeleteBehavior.Cascade);
+
             SeedData.SeedUsersContext(modelBuilder);
 
             SeedData.SeedDataContext(modelBuilder);

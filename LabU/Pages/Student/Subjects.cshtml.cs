@@ -10,9 +10,9 @@ namespace LabU.Pages.Student
 {
     public class SubjectsModel : PageModel
     {
-        public SubjectsModel(UnitOfWork uow)
+        public SubjectsModel(ISubjectRepository sr)
         {
-            this.subjectService = uow.SubjectsService;
+            this.subjectService = sr;
             Subjects = new();
         }
 
@@ -30,7 +30,7 @@ namespace LabU.Pages.Student
             if (userId == 0)
                 return Unauthorized();
 
-            var subjects = await subjectService.GetAllAsync(userId);
+            var subjects = await subjectService.GetSubjectsAsync(userId);
             Subjects.AddRange(subjects.Select(s => SubjectMapper.Map(s)).ToList());
 
             return Page();

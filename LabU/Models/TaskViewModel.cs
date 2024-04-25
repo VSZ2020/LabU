@@ -23,13 +23,16 @@ public class TaskViewModel
     /// Текущий статус ответа на задание: Отправлено, На проверке, Отправлено на доработку, Зачтено и др.
     /// </summary>
     [Display(Name = "Состояние")]
-    public string? Status { get; set; }
+    public ResponseState Status { get; set; }
+
+    public string? StatusName { get; set; }
 
     /// <summary>
     /// Срок ответа на задание
     /// </summary>
     [Display(Name = "Срок ответа")]
     [DataType(DataType.DateTime)]
+    [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy HH:mm}")]
     public DateTime? Deadline { get; set; }
 
     /// <summary>
@@ -54,6 +57,6 @@ public class TaskViewModel
     /// <summary>
     /// Перечень студентов, которым назначено задание
     /// </summary>
-    [Display(Name="Состав команды")]
+    [Display(Name="Ответственные")]
     public string? Students { get; set; }
 }

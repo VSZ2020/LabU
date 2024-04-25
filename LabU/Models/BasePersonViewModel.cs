@@ -5,12 +5,23 @@ namespace LabU.Models;
 public class BasePersonViewModel
 {
     public int Id { get; set; }
-    public string? LastName { get; set; }
-    public string? FirstName { get; set; }
-    public string? MiddleName { get; set; }
-    public string? Email { get; set; }
 
+    [Display(Name = "Фамилия")]
+    public string? LastName { get; set; }
+
+    [Display(Name = "Курс")]
+    public string? FirstName { get; set; }
+
+    [Display(Name = "Отчество")]
+    public string? MiddleName { get; set; }
+
+    [Display(Name = "E-mail")]
+    public string? Email { get; set; }
+    
+    [Display(Name = "ФИО")]
     public string FullName => $"{LastName} {FirstName ?? ""} {MiddleName ?? ""}";
+
+    [Display(Name = "ФИО")]
     public string ShortName => $"{LastName ?? "-"} {(!string.IsNullOrEmpty(FirstName) ? FirstName[0] + '.' : "")}{(!string.IsNullOrEmpty(MiddleName) ? MiddleName[0] + '.' : "")}";
 }
 
@@ -19,7 +30,7 @@ public class StudentViewModel : BasePersonViewModel
     /// <summary>
     /// Номер курса обучения
     /// </summary>
-    [Display(Name = "Курс")]
+    [Display(Name = "Курс обучения")]
     public int Cource { get; set; }
 
     /// <summary>
@@ -28,7 +39,7 @@ public class StudentViewModel : BasePersonViewModel
     [Display(Name = "Номер команды")]
     public int CommandId { get; set; }
 
-    public int AcademicGroupId { get; set; }
+    public int? AcademicGroupId { get; set; }
 
     [Display(Name = "Группа")]
     public string? AcademicGroupName { get; set; }

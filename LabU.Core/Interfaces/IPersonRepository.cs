@@ -20,11 +20,11 @@ namespace LabU.Core.Interfaces
         Task<StudentEntity?> FindStudentByIdAsync(int id);
 
         Task<bool> CreateTeacher(TeacherEntity entity);
-        Task<bool> EditTeacher(TeacherEntity entity);
+        Task<bool> EditTeacherAsync(TeacherEntity entity);
         Task<bool> RemoveTeacher(int id);
 
         Task<bool> CreateStudent(StudentEntity entity);
-        Task<bool> EditStudent(StudentEntity entity);
+        Task<bool> EditStudentAsync(StudentEntity entity);
         Task<bool> RemoveStudent(int id);
     }
 }

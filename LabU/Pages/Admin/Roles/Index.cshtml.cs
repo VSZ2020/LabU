@@ -1,4 +1,5 @@
 using LabU.Core.Identity;
+using LabU.Core.Interfaces;
 using LabU.Data.Repository;
 using LabU.Mappers;
 using LabU.Models;
@@ -9,13 +10,13 @@ namespace LabU.Pages.Admin.Roles
 {
     public class IndexModel : PageModel
     {
-        public IndexModel(UnitOfWork uow, ILogger<IndexModel> logger)
+        public IndexModel(IRoleService rs, ILogger<IndexModel> logger)
         {
-            _uow = uow;
+            _rs = rs;
             _logger = logger;
         }
 
-        readonly UnitOfWork _uow;
+        readonly IRoleService _rs;
         readonly ILogger<IndexModel> _logger;
 
         public List<UserRoleViewModel> Roles { get; private set; }
@@ -27,7 +28,7 @@ namespace LabU.Pages.Admin.Roles
                 return Unauthorized();
             }
 
-            var roles = (await _uow.RoleService.GetRoles()).Select(r => RolesMapper.Map(r)).ToList();
+            var roles = (await _rs.GetRoles()).Select(r => RolesMapper.Map(r)).ToList();
             Roles = roles;
 
             return Page();

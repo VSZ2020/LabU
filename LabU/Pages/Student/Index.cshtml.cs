@@ -10,16 +10,20 @@ namespace LabU.Pages.Student
 {
     public class IndexModel : PageModel
     {
-        public IndexModel(UnitOfWork uof)
+        public IndexModel(ITaskRepository tr, IConfiguration config)
         {
-            this._taskService = uof.TasksService;
+            this._taskService = tr;
+            _config = config;
         }
 
         private readonly ITaskRepository _taskService;
+        readonly IConfiguration _config;
 
         public List<TaskViewModel> ActiveTasks { get; private set; } = new();
 
         public List<TaskViewModel> CompletedTasks { get; private set; } = new();
+
+        public List<TaskViewModel> OverdueTasks { get; private set; } = new();
 
         public async Task<IActionResult> OnGetAsync()
         {
@@ -36,15 +40,23 @@ namespace LabU.Pages.Student
                 nameof(TaskEntity.Subject),
                 nameof(TaskEntity.Users));
 
-            var allUserTasks = await _taskService.GetAllAsync(
+            var allUserTasks = (await _taskService.GetTasksAsync(
                 filter: t => t.Users!.Any(u => u.Id == userId) && t.IsAvailable, 
-                includeProps: includeProps);
+                includeProps: includeProps))
+                .Select(t => Mappers.TaskMapper.Map(t, false, false)).ToList();
 
-            var activeTasks = allUserTasks.Where(t => t.Status != Core.ResponseState.Accepted).Select(t => Mappers.TaskMapper.Map(t, false, true)).ToList();
-            var completedTasks = allUserTasks.Where(t => t.Status == Core.ResponseState.Accepted).Select(t => Mappers.TaskMapper.Map(t, false, true)).ToList();
+            var activeTasks = allUserTasks.Where(t => t.Status != Core.ResponseState.Accepted && t.Deadline > DateTime.Now);
+            var completedTasks = allUserTasks.Where(t => t.Status == Core.ResponseState.Accepted);
+            var overdueTasks = allUserTasks.Where(t => t.Status != Core.ResponseState.Accepted && t.Deadline < DateTime.Now);
 
             ActiveTasks.AddRange(activeTasks);
             CompletedTasks.AddRange(completedTasks);
+            OverdueTasks.AddRange(overdueTasks);
+
+            if (_config["InfoMessage"] is string msg && !string.IsNullOrEmpty(msg))
+            {
+                ViewData["InfoMessage"] = msg;
+            }
 
             return Page();
         }

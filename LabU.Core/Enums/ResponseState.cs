@@ -1,4 +1,6 @@
-﻿namespace LabU.Core
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace LabU.Core
 {
     /// <summary>
     /// Состояния ответа на задание

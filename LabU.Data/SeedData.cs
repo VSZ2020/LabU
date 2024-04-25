@@ -2,6 +2,7 @@
 using LabU.Core.Entities.Identity;
 using LabU.Core.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Nodes;
 
 namespace LabU.Data
 {
@@ -72,6 +73,8 @@ namespace LabU.Data
         #region SeedUsers
         public static void SeedUsers(ModelBuilder builder)
         {
+            var data = JsonNode.Parse(File.ReadAllText("users.private.json"));
+
             var roles = DefaultRoles();
             builder
                 .Entity<UserEntity>()
@@ -79,10 +82,9 @@ namespace LabU.Data
                 [
                     new UserEntity()
                     {
-                        //TODO: Read from external file
                         Id = 1,
                         Username = "admin",
-                        PasswordHash = "admin",
+                        PasswordHash = data!["admin"]!.GetValue<string>(),
                         IsActiveAccount = true,
                         IsEmailConfirmed = true,
                         Email = "admin@lab-u.ru",
@@ -92,7 +94,7 @@ namespace LabU.Data
                     {
                         Id = 2,
                         Username = "teacher",
-                        PasswordHash = "teacher",
+                        PasswordHash = "SoLLbbU372xbU9FEhU4UbeeVAug=",
                         IsActiveAccount = true,
                         IsEmailConfirmed = true,
                         Email = "vasechkin@lab-u.ru",
@@ -101,12 +103,32 @@ namespace LabU.Data
                     new UserEntity()
                     {
                         Id = 3,
+                        Username = "petrov",
+                        PasswordHash = "itdHQ0I8rtzf7tyP4MuM63c74B4=",
+                        IsActiveAccount = true,
+                        IsEmailConfirmed = true,
+                        Email = "petrov@lab-u.ru",
+                        LastVisit = DateTime.Now.AddDays(-10),
+                    },
+                    new UserEntity()
+                    {
+                        Id = 4,
                         Username = "student",
-                        PasswordHash = "student",
+                        PasswordHash = "IEA2oe9uc2DlNjAOp4xq60qTM90=",
                         IsActiveAccount = true,
                         IsEmailConfirmed = true,
                         Email = "ivanov@lab-u.ru",
-                        LastVisit = DateTime.Now.AddDays(-10),
+                        LastVisit = DateTime.Now.AddDays(-5),
+                    },
+                    new UserEntity()
+                    {
+                        Id = 5,
+                        Username = "alice",
+                        PasswordHash = "UisnajVr3zkBPfq+os1D4UHsyeg=",
+                        IsActiveAccount = false,
+                        IsEmailConfirmed = true,
+                        Email = "alisova@lab-u.ru",
+                        LastVisit = DateTime.Now.AddDays(-48),
                     },
                 ]);
         }
@@ -122,7 +144,9 @@ namespace LabU.Data
                     new UserRoleTable(){ UserId = 1, RoleId = 1},
                     new UserRoleTable(){ UserId = 1, RoleId = 2},
                     new UserRoleTable(){ UserId = 2, RoleId = 2},
-                    new UserRoleTable(){ UserId = 3, RoleId = 3},
+                    new UserRoleTable(){ UserId = 3, RoleId = 2},
+                    new UserRoleTable(){ UserId = 4, RoleId = 3},
+                    new UserRoleTable(){ UserId = 5, RoleId = 3},
                 ]);
         } 
         #endregion
@@ -173,12 +197,20 @@ namespace LabU.Data
                     new (){ SubjectId = 1, UserId = 1},
                     new (){ SubjectId = 1, UserId = 2},
                     new (){ SubjectId = 1, UserId = 3},
+                    new (){ SubjectId = 1, UserId = 4},
+                    new (){ SubjectId = 1, UserId = 5},
 
+                    new (){ SubjectId = 2, UserId = 1},
                     new (){ SubjectId = 2, UserId = 2},
                     new (){ SubjectId = 2, UserId = 3},
+                    new (){ SubjectId = 2, UserId = 4},
+                    new (){ SubjectId = 2, UserId = 5},
 
+                    new (){ SubjectId = 3, UserId = 1},
                     new (){ SubjectId = 3, UserId = 2},
                     new (){ SubjectId = 3, UserId = 3},
+                    new (){ SubjectId = 3, UserId = 4},
+                    new (){ SubjectId = 3, UserId = 5},
                 ]);
         } 
         #endregion
@@ -192,10 +224,10 @@ namespace LabU.Data
                 [
                     new (){
                         Id = 1,
-                        LastName = "Adminov",
+                        LastName = "Admin",
                         FirstName = "Admin",
-                        MiddleName = "Adminovich",
-                        Function = "",
+                        MiddleName = "",
+                        Function = "Администратор портала",
                         Address = "",
                     },
                     new (){
@@ -206,6 +238,14 @@ namespace LabU.Data
                         Function = "Преподаватель",
                         Address = "",
                     },
+                    new (){
+                        Id = 3,
+                        LastName = "Петров",
+                        FirstName = "Петр",
+                        MiddleName = "Петрович",
+                        Function = "Преподаватель",
+                        Address = "",
+                    },
                 ]);
 
             builder
@@ -213,13 +253,22 @@ namespace LabU.Data
                 .HasData(
                 [
                     new (){
-                        Id = 3,
+                        Id = 4,
                         LastName = "Иванов",
                         FirstName = "Иван",
                         MiddleName = "Иванович",
                         CommandId = 1,
-                        Cource = 2,
+                        Course = 2,
                         AcademicGroupId = 1,
+                    },
+                    new (){
+                        Id = 5,
+                        LastName = "Алисова",
+                        FirstName = "Алиса",
+                        MiddleName = "Алисовна",
+                        CommandId = 1,
+                        Course = 2,
+                        AcademicGroupId = 2,
                     },
                 ]);
         } 
@@ -284,7 +333,7 @@ namespace LabU.Data
                         Deadline = DateTime.Now.AddHours(10),
                         Description = "Описание задания с подходящим сроком исполнения",
                         IsAvailable = true,
-                        Status = Core.ResponseState.UnderReview,
+                        Status = Core.ResponseState.ReturnedBack,
                         SubjectId = 3,
                         TaskType = Core.Enums.TaskTypes.AcademicGroupTask,
                     },
@@ -295,9 +344,19 @@ namespace LabU.Data
                         Deadline = DateTime.Now.AddHours(-3),
                         Description = "Просроченное задание",
                         IsAvailable = true,
-                        Status = Core.ResponseState.UnderReview,
+                        Status = Core.ResponseState.ReturnedBack,
                         SubjectId = 1,
                         TaskType = Core.Enums.TaskTypes.AcademicGroupTask,
+                    },
+                    new(){
+                        Id = 5,
+                        Name = "Задание 5",
+                        Deadline = DateTime.Now.AddHours(48),
+                        Description = "Выполненное задание",
+                        IsAvailable = true,
+                        Status = Core.ResponseState.Accepted,
+                        SubjectId = 2,
+                        TaskType = Core.Enums.TaskTypes.SingleUser,
                     },
                 ]);
         }
@@ -313,12 +372,30 @@ namespace LabU.Data
                     new (){ TaskId = 1, UserId = 1},
                     new (){ TaskId = 1, UserId = 2},
                     new (){ TaskId = 1, UserId = 3},
+                    new (){ TaskId = 1, UserId = 4},
+                    new (){ TaskId = 1, UserId = 5},
 
+                    new (){ TaskId = 2, UserId = 1},
                     new (){ TaskId = 2, UserId = 2},
-                    new (){ TaskId = 2, UserId = 3},
+                    new (){ TaskId = 2, UserId = 4},
+                    new (){ TaskId = 2, UserId = 5},
 
-                    new (){ TaskId = 3, UserId = 2},
+                    new (){ TaskId = 3, UserId = 1},
                     new (){ TaskId = 3, UserId = 3},
+                    new (){ TaskId = 3, UserId = 4},
+                    new (){ TaskId = 3, UserId = 5},
+
+                    new (){ TaskId = 4, UserId = 1},
+                    new (){ TaskId = 4, UserId = 2},
+                    new (){ TaskId = 4, UserId = 3},
+                    new (){ TaskId = 4, UserId = 4},
+                    new (){ TaskId = 4, UserId = 5},
+
+                    new (){ TaskId = 5, UserId = 1},
+                    new (){ TaskId = 5, UserId = 2},
+                    new (){ TaskId = 5, UserId = 3},
+                    new (){ TaskId = 5, UserId = 4},
+                    new (){ TaskId = 5, UserId = 5},
                 ]);
         } 
         #endregion

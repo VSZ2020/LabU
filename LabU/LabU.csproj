@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <_ContentIncludedByDefault Remove="users.private.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\LabU.Core\LabU.Core.csproj" />
     <ProjectReference Include="..\LabU.Data\LabU.Data.csproj" />
     <ProjectReference Include="..\LabU.Services\LabU.Services.csproj" />

@@ -7,14 +7,11 @@ using System.Linq.Expressions;
 
 namespace LabU.Data.Repository
 {
-    public class DefaultPersonRepository : IPersonRepository, IDisposable
+    public class DefaultPersonRepository : BaseRepository, IPersonRepository
     {
-        public DefaultPersonRepository(DataContext context)
+        public DefaultPersonRepository(DataContext context): base(context)
         {
-            _context = context;
         }
-
-        readonly DataContext _context;
 
         public async Task<TeacherEntity?> FindTeacherByIdAsync(int id)
         {
@@ -27,73 +24,69 @@ namespace LabU.Data.Repository
         }
 
 
-        public async Task<IEnumerable<TeacherEntity>> GetTeachers(
+        public Task<IEnumerable<TeacherEntity>> GetTeachers(
             Expression<Func<TeacherEntity, bool>>? filter = null,
             Func<IQueryable<TeacherEntity>, IOrderedQueryable<TeacherEntity>>? orderBy = null,
             string? includeProps = "")
         {
-            var entities = _context.Teachers.AsNoTracking();
-
-            if (filter != null)
-                entities = entities.Where(filter);
-
-            if (!string.IsNullOrEmpty(includeProps))
-            {
-                foreach (var prop in includeProps.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    entities = entities.Include(prop);
-                }
-            }
-
-            return orderBy != null ? await orderBy(entities).ToListAsync() : await entities.ToListAsync();
+            return base.GetAllAsync(filter, orderBy, includeProps);
         }
 
 
-        public async Task<IEnumerable<StudentEntity>> GetStudents(
+        public Task<IEnumerable<StudentEntity>> GetStudents(
             Expression<Func<StudentEntity, bool>>? filter = null,
             Func<IQueryable<StudentEntity>, IOrderedQueryable<StudentEntity>>? orderBy = null,
             string? includeProps = "")
         {
-            var entities = _context.Students.AsNoTracking();
-
-            if (filter != null)
-                entities = entities.Where(filter);
-
-            if (!string.IsNullOrEmpty(includeProps))
-            {
-                foreach (var prop in includeProps.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    entities = entities.Include(prop);
-                }
-            }
-
-            return orderBy != null ? await orderBy(entities).ToListAsync() : await entities.ToListAsync();
+            return base.GetAllAsync(filter, orderBy, includeProps);
         }
 
         public async Task<bool> CreateStudent(StudentEntity entity)
         {
             await _context.Students.AddAsync(entity);
+            await _context.SaveChangesAsync();
             return true;
         }
 
         public async Task<bool> CreateTeacher(TeacherEntity entity)
         {
             await _context.Teachers.AddAsync(entity);
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> EditStudent(StudentEntity entity)
+        public async Task<bool> EditStudentAsync(StudentEntity student)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            var entity = await _context.Students.FirstOrDefaultAsync(t => t.Id == student.Id);
+            if (entity == null)
+                return false;
+
+            entity.LastName = student.LastName;
+            entity.FirstName = student.FirstName;
+            entity.MiddleName = student.MiddleName;
+            entity.Course = student.Course;
+            entity.AcademicGroupId = student.AcademicGroupId;
+            entity.CommandId = student.CommandId;
 
             _context.Students.Update(entity);
+            await _context.SaveChangesAsync();
             return true;
         }
 
-        public async Task<bool> EditTeacher(TeacherEntity entity)
+        public async Task<bool> EditTeacherAsync(TeacherEntity teacher)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            var entity = await _context.Teachers.FirstOrDefaultAsync(t => t.Id == teacher.Id);
+            if (entity == null)
+                return false;
+
+            entity.LastName = teacher.LastName;
+            entity.FirstName = teacher.FirstName;
+            entity.MiddleName = teacher.MiddleName;
+            entity.Function = teacher.Function;
+            entity.Address = teacher.Address;
+            
             _context.Teachers.Update(entity);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -104,6 +97,8 @@ namespace LabU.Data.Repository
                 return false;
 
             _context.Students.Remove(entity);
+            await _context.SaveChangesAsync();
+
             return true;
         }
 
@@ -114,26 +109,9 @@ namespace LabU.Data.Repository
                 return false;
 
             _context.Teachers.Remove(entity);
+            await _context.SaveChangesAsync();
+
             return true;
-        }
-
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

@@ -1,3 +1,4 @@
+using LabU.Core.Entities;
 using LabU.Core.Identity;
 using LabU.Core.Interfaces;
 using LabU.Data.Repository;
@@ -10,12 +11,12 @@ namespace LabU.Pages.Admin.Students
 {
     public class IndexModel : PageModel
     {
-        public IndexModel(UnitOfWork uow)
+        public IndexModel(IPersonRepository pr)
         {
-            _uow = uow;
+            _pr = pr;
         }
 
-        private UnitOfWork _uow;
+        readonly IPersonRepository _pr;
 
         public List<StudentViewModel> Students { get; private set; }
 
@@ -31,7 +32,7 @@ namespace LabU.Pages.Admin.Students
                 return Unauthorized();
             }
 
-            var students = await _uow.PersonService.GetStudents();
+            var students = await _pr.GetStudents(includeProps: string.Join(",",nameof(StudentEntity.AcademicGroup)));
             Students = students.Select(t => StudentMapper.Map(t)).ToList();
 
             return Page();

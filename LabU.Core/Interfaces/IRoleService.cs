@@ -6,7 +6,7 @@ public interface IRoleService
 {
     Task<bool> CreateAsync(RoleEntity role);
     Task<bool> UpdateAsync(RoleEntity role);
-    Task<bool> RemoveAsync(RoleEntity role);
+    Task<bool> RemoveAsync(int roleId);
 
     /// <summary>
     /// Возвращает список доступных ролей в системе

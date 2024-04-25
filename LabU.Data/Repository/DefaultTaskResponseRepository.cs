@@ -4,26 +4,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LabU.Data.Repository
 {
-    public class DefaultTaskResponseRepository : ITaskResponseService, IDisposable
+    public class DefaultTaskResponseRepository : BaseRepository, ITaskResponseService
     {
-        public DefaultTaskResponseRepository(DataContext context)
+        public DefaultTaskResponseRepository(DataContext context): base(context)
         {
-            _context = context;
         }
 
-        private readonly DataContext _context;
-
-        public bool AddResponse(TaskResponseEntity response)
+        public async Task<bool> AddResponseAsync(TaskResponseEntity response)
         {
-            throw new NotImplementedException();
+            await _context.TaskResponses.AddAsync(response);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public bool EditResponse(TaskResponseEntity response)
+        public async Task<bool> EditResponseAsync(TaskResponseEntity response)
         {
-            throw new NotImplementedException();
+            var entity = await _context.TaskResponses.FirstOrDefaultAsync(r => r.Id == response.Id);
+            if (entity == null)
+                return false;
+
+            entity.SubmissionDate = response.SubmissionDate;
+            entity.SenderId = response.SenderId;
+            entity.TaskId = response.TaskId;
+            entity.Comment = response.Comment;
+
+            _context.TaskResponses.Update(entity);
+            await _context.SaveChangesAsync();
+            return true;
         }
 
-        public async Task<IEnumerable<TaskResponseEntity>> GetAllAsync(int taskId)
+        public async Task<IEnumerable<TaskResponseEntity>> GetTaskResponsesAsync(int taskId)
         {
             return await _context.TaskResponses
                 .AsNoTracking()
@@ -34,28 +44,10 @@ namespace LabU.Data.Repository
                 .ToListAsync();
         }
 
-        public bool RemoveResponse(TaskResponseEntity response)
+        public async Task<bool> RemoveResponseAsync(int responseId)
         {
-            throw new NotImplementedException();
-        }
-
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            await _context.TaskResponses.Where(r => r.Id == responseId).ExecuteDeleteAsync();
+            return true;
         }
     }
 }

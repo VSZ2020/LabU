@@ -1,31 +1,42 @@
 using LabU.Core.Entities;
 using LabU.Core.Entities.Identity;
 using LabU.Core.Identity;
-using LabU.Data.Repository;
+using LabU.Core.Interfaces;
+using LabU.Mappers;
 using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
-namespace LabU.Pages.Admin.Teachers
+namespace LabU.Pages.Admin.Students
 {
     public class AddModel : PageModel
     {
-        public AddModel(UnitOfWork uow, ILogger<AddModel> logger)
+        public AddModel(IPersonRepository pr, IUserService us, IRoleService rs, IAcademicGroupsRepository agr, ILogger<AddModel> logger)
         {
-            _uow = uow;
+            _pr = pr;
+            _us = us;
+            _rs = rs;
+            _agr = agr;
             _logger = logger;
         }
 
-        readonly UnitOfWork _uow;
+        readonly IPersonRepository _pr;
+        readonly IUserService _us;
+        readonly IRoleService _rs;
+        readonly IAcademicGroupsRepository _agr;
         readonly ILogger<AddModel> _logger;
 
         [BindProperty]
-        public AddTeacherViewModel UserModel { get; set; }
+        public AddStudentViewModel UserModel { get; set; }
+
+        public SelectList AcademicGroups { get; set; }
 
         public async Task<IActionResult> OnGetAsync()
         {
             UserModel = new() { IsActiveAccount = true };
+            PopulateGroupsList();
 
             return Page();
         }
@@ -33,9 +44,12 @@ namespace LabU.Pages.Admin.Teachers
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid)
-                return Page();
+            {
+                PopulateGroupsList();
+                return Page(); 
+            }
 
-            var teacherAccount = new UserEntity()
+            var userAccount = new UserEntity()
             {
                 Username = UserModel.Username,
                 PasswordHash = UserModel.Password,
@@ -43,35 +57,40 @@ namespace LabU.Pages.Admin.Teachers
                 IsActiveAccount = UserModel.IsActiveAccount,
                 IsEmailConfirmed = true,
                 LastVisit = DateTime.Now,
-                Roles = new List<RoleEntity>() { (await _uow.RoleService.FindByNameAsync(UserRoles.TEACHER))! },
+                Roles = new List<RoleEntity>() { (await _rs.FindByNameAsync(UserRoles.TEACHER))! },
             };
-            var newId = await _uow.UserService.CreateUserAsync(teacherAccount);
+            var newId = await _us.CreateUserAsync(userAccount);
 
-            var teacherEntity = new TeacherEntity()
+            var studentEntity = new StudentEntity()
             {
                 FirstName = UserModel.FirstName,
                 LastName = UserModel.LastName,
                 MiddleName = UserModel.MiddleName,
-                Address = UserModel.Address,
-                Function = UserModel.Function,
-                Account = teacherAccount,
+                Course = UserModel.Course,
+                AcademicGroupId = UserModel.AcademicGroupId,
+                CommandId = UserModel.CommandId,
+                Account = userAccount,
                 Id = newId,
             };
 
-            await _uow.PersonService.CreateTeacher(teacherEntity);
-
             try
             {
-                await _uow.SaveChangesAsync();
+                await _pr.CreateStudent(studentEntity);
             }
             catch (DbUpdateException ex)
             {
-                _logger.LogError($"Can't create user account for '{teacherAccount.Username}'. Exception: {ex.Message}");
+                _logger.LogError($"Can't create user account for '{userAccount.Username}'. Exception: {ex.Message}");
                 ModelState.AddModelError("", "Не удалось создать аккаунт. Повторите попытку позднее");
                 return Page();
             }
 
             return Redirect("./Index");
+        }
+
+        private async void PopulateGroupsList(object selectedGroup = null)
+        {
+            var groups = (await _agr.GetAllGroupsAsync()).Select(AcademicGroupMapper.Map).ToList();
+            AcademicGroups = new SelectList(groups, nameof(AcademicGroupViewModel.Id), nameof(AcademicGroupViewModel.Name), selectedGroup);
         }
     }
 }

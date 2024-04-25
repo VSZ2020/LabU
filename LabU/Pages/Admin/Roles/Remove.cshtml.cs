@@ -1,5 +1,6 @@
 using LabU.Core.Entities.Identity;
 using LabU.Core.Identity;
+using LabU.Core.Interfaces;
 using LabU.Data.Repository;
 using LabU.Mappers;
 using LabU.Models;
@@ -10,23 +11,23 @@ namespace LabU.Pages.Admin.Roles
 {
     public class RemoveModel : PageModel
     {
-        public RemoveModel(UnitOfWork uow, ILogger<RemoveModel> logger)
+        public RemoveModel(IUserService us, IRoleService rs, ILogger<RemoveModel> logger)
         {
-            _uow = uow;
+            _us = us;
+            _rs = rs;
             _logger = logger;
         }
 
-        readonly UnitOfWork _uow;
+        readonly IUserService _us;
+        readonly IRoleService _rs;
         readonly ILogger<RemoveModel> _logger;
 
-        [BindProperty]
         public int RoleId { get; set; }
 
-        [BindProperty]
         public string? RoleName { get; private set; }
 
         [BindProperty]
-        public List<RemoveUserViewModel> UsersToUpdate { get; private set; }
+        public List<RemoveUserViewModel> UsersToUpdate { get; set; }
 
         public async Task<IActionResult> OnGetAsync(int? id)
         {
@@ -39,13 +40,14 @@ namespace LabU.Pages.Admin.Roles
                 return NotFound("Идентификатор роли отсутствует");
             }
 
-            var role = await _uow.RoleService.FindByIdAsync(id.Value);
+            var role = await _rs.FindByIdAsync(id.Value);
             if (role == null)
                 return Redirect("./Index");
 
             RoleName = role.Name!;
+            RoleId = id.Value;
 
-            var usersToUpdate = await _uow.UserService.GetUsersAsync(
+            var usersToUpdate = await _us.GetUsersAsync(
                 filter: u => u.Roles!.Any(r => r.Id == id.Value) && u.Roles!.Count == 1,
                 includeProps: string.Join(",", nameof(UserEntity.Roles))
                 );
@@ -54,28 +56,39 @@ namespace LabU.Pages.Admin.Roles
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id)
         {
+            if (!id.HasValue)
+            {
+                return NotFound();
+            }
+
+            if (User == null || User.Identity == null || !User.Identity.IsAuthenticated || !User.IsInRole(UserRoles.ADMINISTRATOR))
+            {
+                return Unauthorized();
+            }
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
-
-            if(UsersToUpdate != null)
+            //TODO: Нет связи с формой
+            if(UsersToUpdate != null && UsersToUpdate.Count > 0)
             {
                 var ids = UsersToUpdate.Select(u => u.Id).ToArray();
-                var guestRole = await _uow.RoleService.FindByNameAsync(UserRoles.GUEST);
-
-                await _uow.UserService.AddToRoleAsync(ids, guestRole!.Id);
-                await _uow.UserService.RemoveFromRoleAsync(ids, RoleId);
+                var guestRole = await _rs.FindByNameAsync(UserRoles.GUEST);
 
                 try
                 {
-                    await _uow.SaveChangesAsync();
+                    await _us.AddToRoleAsync(ids, guestRole!.Id);
+                    await _us.RemoveFromRoleAsync(ids, id.Value);
+                    await _rs.RemoveAsync(id.Value);
                 }
                 catch(Exception ex)
                 {
-                    _logger.LogError($"Can't save changes after removing roles from users with ids: {string.Join(",",ids)}. Exception: {ex.Message}");
+                    _logger.LogError($"Can't remove role from users with ids: {string.Join(",",ids)}. Exception: {ex.Message}");
+                    ModelState.AddModelError("", "Не удалось удалить роль. Попробуйте позднее");
+                    return Page();
                 }
             }
 

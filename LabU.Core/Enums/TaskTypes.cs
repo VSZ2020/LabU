@@ -5,7 +5,7 @@
         /// <summary>
         /// Индивидуальное задание
         /// </summary>
-        SungleUser,
+        SingleUser,
 
         /// <summary>
         /// Задание на команду студентов

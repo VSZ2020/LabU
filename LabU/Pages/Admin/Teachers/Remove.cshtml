@@ -4,7 +4,7 @@
 }
 <p>Вы уверены, что хотите удалить преподавателя <b>@Model.FullName</b>?</p>
 <form method="post">
-    <div asp-validation-summary="All"></div>
+    <div asp-validation-summary="All" class="text-danger"></div>
     @Html.HiddenFor(m => m.TeacherId)
 
     <p>Преподаватель будет автоматически отвязан от прикрепленных заданий и дисциплин. Перечень затрагиваемых дисциплин:</p>

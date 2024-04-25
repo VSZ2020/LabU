@@ -8,16 +8,13 @@ using System.Linq.Expressions;
 
 namespace LabU.Data.Repository;
 
-public class DefaultSubjectsRepository: ISubjectRepository, IDisposable
+public class DefaultSubjectsRepository: BaseRepository, ISubjectRepository
 {
-    public DefaultSubjectsRepository(DataContext ctx)
+    public DefaultSubjectsRepository(DataContext ctx): base(ctx)
     {
-        _context = ctx;
     }
 
-    private readonly DataContext _context;
-
-    public async Task<IEnumerable<SubjectEntity>> GetAllAsync(int userId)
+    public async Task<IEnumerable<SubjectEntity>> GetSubjectsAsync(int userId)
     {
         return await _context.Subjects
             .AsNoTracking()
@@ -26,25 +23,12 @@ public class DefaultSubjectsRepository: ISubjectRepository, IDisposable
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<SubjectEntity>> GetAllAsync(
+    public Task<IEnumerable<SubjectEntity>> GetSubjectsAsync(
         Expression<Func<SubjectEntity, bool>>? filter = null,
         Func<IQueryable<SubjectEntity>, IOrderedQueryable<SubjectEntity>>? orderBy = null,
         string? includeProps = null)
     {
-        var subjects = _context.Subjects.AsNoTracking();
-
-        if (filter != null)
-            subjects = subjects.Where(filter);
-
-        if (!string.IsNullOrEmpty(includeProps))
-        {
-            foreach (var prop in includeProps.Split(',', StringSplitOptions.RemoveEmptyEntries))
-            {
-                subjects = subjects.Include(prop);
-            }
-        }
-
-        return orderBy != null ? await orderBy(subjects).ToListAsync() : await subjects.ToListAsync();
+        return base.GetAllAsync(filter, orderBy, includeProps);
     }
 
     public async Task<SubjectEntity?> FindSubjectByIdAsync(int id)
@@ -84,26 +68,32 @@ public class DefaultSubjectsRepository: ISubjectRepository, IDisposable
         return teachers;
     }
 
-    public bool AddSubject(SubjectEntity item)
+    public async Task<bool> AddSubjectAsync(SubjectEntity item)
     {
-        _context.Subjects.Add(item);
+        await _context.Subjects.AddAsync(item);
+        await _context.SaveChangesAsync();
         return true;
     }
 
-    public bool EditSubject(SubjectEntity item)
+    public async Task<bool> EditSubjectAsync(SubjectEntity item)
     {
-        _context.Subjects.Attach(item);
-        _context.Subjects.Update(item);
+        var entity = await _context.Subjects.FirstOrDefaultAsync(s => s.Id == item.Id);
+        if (entity == null)
+            return false;
+
+        entity.Name = item.Name;
+        _context.Subjects.Update(entity);
+        _context.SaveChanges();
         return true;
     }
 
-    public bool RemoveSubject(SubjectEntity item)
+    public async Task<bool> RemoveSubjectAsync(int id)
     {
-        _context.Subjects.Remove(item);
+        await _context.Subjects.Where(s => s.Id == id).ExecuteDeleteAsync();
         return true;
     }
 
-    public bool AttachUsers(int subjectId, int[] usersIds)
+    public async Task<bool> UpdateAttachedUsersAsync(int subjectId, int[] usersIds)
     {
         var subject = _context.Subjects.FirstOrDefault(s => s.Id == subjectId);
         if (subject == null)
@@ -125,6 +115,61 @@ public class DefaultSubjectsRepository: ISubjectRepository, IDisposable
             _context.PersonSubjectTable.Add(new PersonSubjectTable() { SubjectId = subjectId, UserId = userId});
         }
 
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateAttachedTeachersAsync(int subjectId, int[] usersIds)
+    {
+        var subject = _context.Subjects.FirstOrDefault(s => s.Id == subjectId);
+        if (subject == null)
+            return false;
+
+        var teachersIds = await _context.Teachers.Select(t => t.Id).ToArrayAsync();
+        var attachedTeachers = _context.PersonSubjectTable.Where(p => p.SubjectId == subjectId && teachersIds.Contains(p.UserId)).Select(p => p.UserId).ToArray();
+        var usersToRemove = attachedTeachers.Where(id => !usersIds.Contains(id)).ToArray();
+        var usersToAdd = usersIds.Where(id => !attachedTeachers.Contains(id)).ToArray();
+
+        foreach (var userId in usersToRemove)
+        {
+            var entity = _context.PersonSubjectTable.FirstOrDefault(e => e.SubjectId == subjectId && e.UserId == userId);
+            if (entity != null)
+                _context.PersonSubjectTable.Remove(entity);
+        }
+
+        foreach (var userId in usersToAdd)
+        {
+            _context.PersonSubjectTable.Add(new PersonSubjectTable() { SubjectId = subjectId, UserId = userId });
+        }
+
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> UpdateAttachedStudentsAsync(int subjectId, int[] usersIds)
+    {
+        var subject = _context.Subjects.FirstOrDefault(s => s.Id == subjectId);
+        if (subject == null)
+            return false;
+
+        var studentsIds = await _context.Students.Select(t => t.Id).ToArrayAsync();
+        var attachedStudents = _context.PersonSubjectTable.Where(p => p.SubjectId == subjectId && studentsIds.Contains(p.UserId)).Select(p => p.UserId).ToArray();
+        var usersToRemove = attachedStudents.Where(id => !usersIds.Contains(id)).ToArray();
+        var usersToAdd = usersIds.Where(id => !attachedStudents.Contains(id)).ToArray();
+
+        foreach (var userId in usersToRemove)
+        {
+            var entity = _context.PersonSubjectTable.FirstOrDefault(e => e.SubjectId == subjectId && e.UserId == userId);
+            if (entity != null)
+                _context.PersonSubjectTable.Remove(entity);
+        }
+
+        foreach (var userId in usersToAdd)
+        {
+            _context.PersonSubjectTable.Add(new PersonSubjectTable() { SubjectId = subjectId, UserId = userId });
+        }
+
+        await _context.SaveChangesAsync();
         return true;
     }
 
@@ -135,6 +180,7 @@ public class DefaultSubjectsRepository: ISubjectRepository, IDisposable
         if (relationship != null)
             return false;
         await _context.PersonSubjectTable.AddAsync(new PersonSubjectTable() { UserId = userId, SubjectId = subjectId });
+        _context.SaveChanges();
         return true;
     }
 
@@ -144,25 +190,7 @@ public class DefaultSubjectsRepository: ISubjectRepository, IDisposable
         if (relationship == null)
             return false;
         _context.PersonSubjectTable.Remove(relationship);
+        _context.SaveChanges();
         return true;
-    }
-
-    private bool disposed = false;
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!this.disposed)
-        {
-            if (disposing)
-            {
-                _context.Dispose();
-            }
-        }
-        this.disposed = true;
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
     }
 }

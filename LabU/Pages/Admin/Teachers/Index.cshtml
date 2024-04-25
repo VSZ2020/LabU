@@ -4,9 +4,9 @@
     ViewData["Title"] = "Преподаватели";
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 
-<p><a asp-page="./Add" class="btn btn-outline-primary">Добавить преподавателя</a>
+<p><a asp-page="./Add" class="btn btn-sm btn-outline-primary">Добавить преподавателя</a>
 
 <div class="table-responsive">
     <table class="table">
@@ -14,7 +14,6 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].FullName)</th>
-                <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].Email)</th>
                 <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].Function)</th>
                 <th scope="col">@Html.DisplayNameFor(x => x.Teachers[0].Address)</th>
                 <th scope="col"></th>
@@ -26,7 +25,6 @@
                 <tr>
                     <th scope="row">@teacher.Id</th>
                     <td>@Html.DisplayFor(x => teacher.FullName)</td>
-                    <td>@Html.DisplayFor(x => teacher.Email)</td>
                     <td>@Html.DisplayFor(x => teacher.Function)</td>
                     <td>@Html.DisplayFor(x => teacher.Address)</td>
                     <td>

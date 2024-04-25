@@ -1,0 +1,13 @@
+﻿@page
+@model LabU.Pages.BugreportModel
+@{
+    ViewData["Title"] = "Сообщить о проблеме";
+}
+<h1>@ViewData["Title"]</h1>
+<form method="post">
+    <p>Опишите проблему</p>
+    @Html.HiddenFor(x => x.SenderId)
+    @Html.DisplayFor(x => x.Description)
+    <br />
+    <button type="submit">Отправить</button>
+</form>

@@ -2,3 +2,19 @@
 @model LabU.Pages.Student.Task.Response.EditModel
 @{
 }
+<h1>Новый ответ на задание</h1>
+<form method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @Html.HiddenFor(x => x.TaskResponse.TaskId)
+    <div class="form-floating mb-3">
+        <input type="text" asp-for="@Model.TaskResponse.AttachmentName" class="form-control" />
+        <label asp-for="@Model.TaskResponse.AttachmentName"></label>
+    </div>
+    <div class="form-floating mb-3">
+        <textarea asp-for="@Model.TaskResponse.AttachmentName" class="form-control" />
+        <label asp-for="@Model.TaskResponse.AttachmentName"></label>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Добавить</button>
+    <a class="btn btn-light" asp-page="../Index">Отмена</a>
+</form>

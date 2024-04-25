@@ -1,6 +1,5 @@
 using LabU.Core.Identity;
 using LabU.Core.Interfaces;
-using LabU.Data.Repository;
 using LabU.Mappers;
 using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -10,12 +9,12 @@ namespace LabU.Pages.Admin.Teachers
 {
     public class IndexModel : PageModel
     {
-        public IndexModel(UnitOfWork uow)
+        public IndexModel(IPersonRepository pr)
         {
-            _uow = uow;
+            _pr = pr;
         }
 
-        private UnitOfWork _uow;
+        private readonly IPersonRepository _pr;
 
         public List<TeacherViewModel> Teachers { get; private set; }
 
@@ -31,7 +30,7 @@ namespace LabU.Pages.Admin.Teachers
                 return Unauthorized();
             }
 
-            var teachers = await _uow.PersonService.GetTeachers();
+            var teachers = await _pr.GetTeachers();
             Teachers = teachers.Select(t => TeacherMapper.Map(t)).ToList();
 
             return Page();

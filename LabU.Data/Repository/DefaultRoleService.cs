@@ -4,18 +4,16 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LabU.Data.Repository
 {
-    public class DefaultRoleService : IRoleService, IDisposable
+    public class DefaultRoleService : BaseRepository, IRoleService
     {
-        public DefaultRoleService(DataContext context)
+        public DefaultRoleService(DataContext context): base(context)
         {
-            _context = context;
         }
-
-        private readonly DataContext _context;
 
         public async Task<bool> CreateAsync(RoleEntity role)
         {
             await _context.Roles.AddAsync(role);
+            await _context.SaveChangesAsync();
             return true;
         }
 
@@ -31,53 +29,36 @@ namespace LabU.Data.Repository
 
         public async Task<IEnumerable<RoleEntity>> GetRoles()
         {
-            return await _context.Roles.AsNoTracking().Include(r => r.Users).ToListAsync();
+            return await _context.Roles
+                .AsNoTracking()
+                .Include(r => r.Users)
+                .ToListAsync();
         }
 
         public bool HasRole(RoleEntity role)
         {
-            return _context.Roles.AsNoTracking().FirstOrDefaultAsync(r => r.Id == role.Id && r.Name == role.Name) != null;
+            return _context.Roles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Id == role.Id && r.Name == role.Name) != null;
         }
 
         public bool HasRole(string roleName)
         {
-            return _context.Roles.AsNoTracking().FirstOrDefaultAsync(r => r.Name == roleName) != null;
+            return _context.Roles
+                .AsNoTracking()
+                .FirstOrDefaultAsync(r => r.Name == roleName) != null;
         }
 
-        public async Task<bool> RemoveAsync(RoleEntity role)
+        public async Task<bool> RemoveAsync(int roleId)
         {
-            var entity = await _context.Roles.FirstOrDefaultAsync(r => r.Id == role.Id);
-            if (entity == null)
-                return false;
-            _context.Roles.Remove(entity);
+            await _context.Roles.Where(r => r.Id == roleId).ExecuteDeleteAsync();
             return true;
         }
 
         public async Task<bool> UpdateAsync(RoleEntity role)
         {
-            //_context.Roles.Attach(role);
-            _context.Roles.Entry(role).State = EntityState.Modified;
-            _context.Roles.Update(role);
+            await _context.Roles.Where(r => r.Id == role.Id).ExecuteUpdateAsync(r => r.SetProperty(p => p.Name, p => role.Name).SetProperty(p => p.NormalizedName, p => role.NormalizedName));
             return true;
-        }
-
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
         }
     }
 }

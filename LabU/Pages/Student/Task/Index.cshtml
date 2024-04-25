@@ -1,38 +1,39 @@
 ﻿@page "{id:int?}"
+@using LabU.Core
 @model LabU.Pages.Student.Task.IndexModel
 @{
-    var task = Model.StudentTask;
     int counter = 0;
+    var task = Model.StudentTask;
+    var IsTaskAccepted = task.Status == ResponseState.Accepted;
     ViewData["Title"] = $"Задание - {task.Name ?? "Без названия"}";
 }
+@if (task.Deadline != null && task.Deadline.Value < DateTime.Now && !IsTaskAccepted)
+{
+    <div class="alert alert-danger">Срок ответа на задание вышел</div>
+}
+@if (task.Deadline.Value > DateTime.Now && task.Deadline.Value.Subtract(DateTime.Now) < TimeSpan.FromHours(12))
+{
+    <div class="alert alert-warning">Внимание! Осталось менее 12 часов до сдачи задания</div>
+}
+
 <table class="table table-borderless">
     <tr>
         <td width="60%">
             <h3>@task.Name</h3>
             <p>@(string.IsNullOrEmpty(task.Description) ? "Описание отсутствует" : task.Description)</p>
-            <br />
-            <form method="post" asp-page="./Response/Add" asp-route-taskId="@task.Id">
-                <button class="btn btn-primary" disabled="@(task.Deadline.Value < DateTime.Now)">Новый ответ на задание</button>
-            </form>
         </td>
         <td width="40%" align="right">
             <div>
-                <span class="@(task.Deadline.Value > DateTime.Now ? "text-black" : "text-danger")">Срок завершения задания: @($"{task.Deadline:dd.MM.yyyy HH:mm}")</span>
-                @if (task.Deadline.Value > DateTime.Now && task.Deadline.Value.Subtract(DateTime.Now) < TimeSpan.FromHours(12))
-                {
-                    <br />
-                    <span class="text-danger">Внимание! Осталось менее 12 часов до сдачи задания</span>
-                }
-                <br />
+                <span class="text-black">Срок закрытия задания: @($"{task.Deadline:dd.MM.yyyy HH:mm}")</span>
+
                 @if (!string.IsNullOrEmpty(task.Reviewers))
                 {
-                    <br />
                     <h4>Проверяющие</h4>
                     @if (!string.IsNullOrEmpty(task.Reviewers))
                     {
                         foreach (var reviewer in task.Reviewers.Split(',', StringSplitOptions.RemoveEmptyEntries))
                         {
-                            <span class="text-black-50">@reviewer</span>
+                            <span class="text-black-50">@reviewer</span><br />
                         }
                     }
                 }
@@ -40,11 +41,20 @@
         </td>
     </tr>
     <tr>
-        <td width="60%" colspan="2">
+        <td colspan="2">
+            <a asp-page="../Index" class="btn btn-light">← К списку заданий</a>
+            @if (task.Deadline.Value > DateTime.Now && !IsTaskAccepted)
+            {
+                <a asp-page="./Response/Add" asp-route-taskId="@task.Id" class="btn btn-primary">Новый ответ на задание</a>
+            }
+        </td>
+    </tr>
+    <tr>
+        <td colspan="2">
             <h4>Предыдущие ответы</h4>
             @if (Model.PreviousTaskResponses.Count > 0)
             {
-                <table class="table">
+                <table class="table table-sm align-baseline">
                     <tr>
                         <td>№</td>
                         <td>@Html.DisplayNameFor(x => x.PreviousTaskResponses[0].SubmissionDate)</td>
@@ -60,7 +70,7 @@
                             <td>
                                 @Html.DisplayFor(x => response.Attachment != null ? response.Attachment.FileName : "No attachment")
                             </td>
-                            <td><a class="btn btn-lg" asp-page="./Response/Edit" asp-route-id="@response.Id">Просмотр</a></td>
+                            <td><a class="btn btn-link" asp-page="./Response/Edit" asp-route-id="@response.Id">Просмотр</a></td>
                         }
                     </tr>
                 </table>

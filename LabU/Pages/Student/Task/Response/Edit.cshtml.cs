@@ -1,3 +1,5 @@
+using LabU.Core.Interfaces;
+using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
@@ -5,27 +7,18 @@ namespace LabU.Pages.Student.Task.Response
 {
     public class EditModel : PageModel
     {
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public EditModel(ITaskRepository tr, ITaskResponseService trr, ILogger<EditModel> logger)
         {
-            if (id == null)
-                return NotFound();
-            //var response = service.GetById(id);
-            //if (response == null)
-            //{
-            //  return NotFound();
-            //}
-
-            return Page();
+            _tr = tr;
+            _trr = trr;
         }
 
-        public async Task<IActionResult> OnPostAsync()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+        private readonly ITaskRepository _tr;
+        private readonly ITaskResponseService _trr;
+        private ILogger<EditModel> _logger;
 
-            return RedirectToPage("./Index");
-        }
+        [BindProperty]
+        public TaskResponseViewModel TaskResponse { get; set; } = default!;
+
     }
 }

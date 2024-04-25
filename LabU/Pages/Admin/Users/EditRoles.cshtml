@@ -20,7 +20,9 @@
             {
                 <tr>
                     <td>@role.Name</td>
-                    <td class="col-1"><input type="checkbox" name="roles" value="@role.Name" @(role.IsChecked ? "checked=\"checked\"" : "") @(Model.UserId == 1 && role.Name == UserRoles.ADMINISTRATOR ? "disabled" : "") /></td>
+                    <td class="col-1">
+                        <input type="checkbox" name="roles" value="@role.Id" @(role.IsChecked ? "checked=\"checked\"" : "") @(Model.UserId == 1 && role.Name == UserRoles.ADMINISTRATOR ? "disabled" : "") />
+                    </td>
                 </tr>
             }
             <caption>Перечень ролей, присвоенных пользователю</caption>

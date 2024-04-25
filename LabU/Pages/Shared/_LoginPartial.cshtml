@@ -1,8 +1,21 @@
-﻿@if (User.Identity?.IsAuthenticated ?? false)
+﻿@using System.Security.Claims
+@if (User.Identity?.IsAuthenticated ?? false)
 {
     <ul class="navbar-nav">
-        <li class="nav-item">
-            <a href="/Logout" class="nav-link text-dark">Выход</a>
+        <li class="nav-link">
+            |
+        </li>
+        
+        <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" role="button" href="#" data-bs-toggle="dropdown" aria-expanded="false" id="navBarDropdownMenu">
+                <strong>
+                    @(User.Identity.Name)
+                </strong>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navBarDropdownMenu">
+                <li><a href="/Account/Index" class="dropdown-item">Профиль</a></li>
+                <li><a href="/Logout" class="dropdown-item">Выход</a></li>
+            </ul>
         </li>
     </ul>
 }

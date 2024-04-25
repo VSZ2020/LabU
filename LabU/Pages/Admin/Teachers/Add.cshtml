@@ -8,69 +8,58 @@
     <div class="col-md-4">
         <form method="post">
             <div asp-validation-summary="All" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.Username" class="control-label"></label>
+
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.Username" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.Username" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.Username"></label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.Password" class="control-label"></label>
+            <div class="fform-floating mb-3">
                 <input asp-for="@Model.UserModel.Password" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.Password" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.Password"></label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.ConfirmPassword" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.ConfirmPassword" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.ConfirmPassword" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.ConfirmPassword"></label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.Email" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.Email" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.Email" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.Email"></label>
             </div>
 
-            <br />
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.LastName" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.LastName" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.LastName" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.LastName"></label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.FirstName" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.FirstName" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.FirstName" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.FirstName"></label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.MiddleName" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.MiddleName" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.MiddleName" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.MiddleName"></label>
             </div>
-            <br />
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.Function" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.Function" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.Function" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.Function"></label>
             </div>
 
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.Address" class="control-label"></label>
+            <div class="form-floating mb-3">
                 <input asp-for="@Model.UserModel.Address" class="form-control" />
-                <span asp-validation-for="@Model.UserModel.Address" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.Address"></label>
             </div>
 
-            <br />
-            <div class="form-group">
-                <label asp-for="@Model.UserModel.IsActiveAccount" class="control-label"></label>
+
+            <div class="mb-3">
                 <input type="checkbox" asp-for="@Model.UserModel.IsActiveAccount" />
-                <span asp-validation-for="@Model.UserModel.IsActiveAccount" class="text-danger"></span>
+                <label asp-for="@Model.UserModel.IsActiveAccount"></label>
             </div>
-            <br/>
+
             <button type="submit" class="btn btn-primary" >Добавить</button>
             <a asp-page="./Index" class="btn btn-light">Отмена</a>
         </form>

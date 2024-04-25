@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
+
 // Add services to the container.
 builder.Services.AddRazorPages(pages =>
 {
@@ -17,13 +18,9 @@ builder.Services.AddRazorPages(pages =>
     pages.Conventions.AuthorizeFolder("/Student", "StudentAdminPolicy");
     pages.Conventions.AuthorizeFolder("/Teacher", "TeacherAdminPolicy");
     pages.Conventions.AuthorizeFolder("/Admin", "AdminOnlyPolicy");
+    pages.Conventions.AuthorizePage("/Account/Index", "AuthorizedUsers");
     pages.Conventions.AllowAnonymousToPage("/Account/Login");
 });
-
-//builder.Services.AddDbContext<UsersContext>(
-//    options => options.UseSqlite(
-//        builder.Configuration.GetConnectionString("DataContextConnection") ?? throw new InvalidOperationException("Connection string for 'DataContextConnection' is missing"),
-//        m => m.MigrationsAssembly("LabU.Data")));
 
 builder.Services.AddDbContext<DataContext>(
     options => options.UseSqlite(
@@ -46,6 +43,7 @@ builder.Services.AddAuthorization(options =>
 {
     //Политики доступа
     options.AddPolicy("AdminOnlyPolicy", policy => policy.RequireClaim(ClaimTypes.Role,UserRoles.ADMINISTRATOR));
+    options.AddPolicy("AuthorizedUsers", policy => policy.RequireAuthenticatedUser());
     options.AddPolicy("StudentAdminPolicy", policy =>
     {
         policy.RequireRole(ClaimTypes.Role, UserRoles.ADMINISTRATOR, UserRoles.STUDENT);
@@ -57,14 +55,14 @@ builder.Services.AddAuthorization(options =>
 });
 
 builder.Services
-    //.AddTransient<IUserService, DefaultUsersRepository>()
-    //.AddTransient<IPersonRepository, DefaultPersonRepository>()
-    //.AddTransient<IRoleService, DefaultRoleService>()
-    //.AddTransient<ITaskRepository, DefaultTaskRepository>()
-    //.AddTransient<ITaskResponseService, DefaultTaskResponseRepository>()
-    //.AddTransient<ISubjectRepository, DefaultSubjectsRepository>()
-    //.AddTransient<IAuthService, DefaultAuthService>()
-    .AddScoped<UnitOfWork>();
+    .AddTransient<IUserService, DefaultUsersRepository>()
+    .AddTransient<IPersonRepository, DefaultPersonRepository>()
+    .AddTransient<IRoleService, DefaultRoleService>()
+    .AddTransient<ITaskRepository, DefaultTaskRepository>()
+    .AddTransient<ITaskResponseService, DefaultTaskResponseRepository>()
+    .AddTransient<ISubjectRepository, DefaultSubjectsRepository>()
+    .AddTransient<IAuthService, DefaultAuthService>()
+    .AddTransient<IAcademicGroupsRepository, DefaultAcademicGroupRepository>();
 
 var app = builder.Build();
 

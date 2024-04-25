@@ -4,9 +4,9 @@
     ViewData["Title"] = "Студенты";
 }
 
-<h3>@ViewData["Title"]</h3>
+<h1>@ViewData["Title"]</h1>
 
-<p><a asp-page="./Add" class="btn btn-outline-primary">Добавить студента</a>
+<p><a asp-page="./Add" class="btn btn-sm btn-outline-primary">Добавить студента</a>
 
 <div class="table-responsive">
     <table class="table">
@@ -14,24 +14,24 @@
             <tr>
                 <th scope="col">#</th>
                 <th scope="col">@Html.DisplayNameFor(x => x.Students[0].FullName)</th>
-                <th scope="col">@Html.DisplayNameFor(x => x.Students[0].Email)</th>
                 <th scope="col">@Html.DisplayNameFor(x => x.Students[0].Cource)</th>
                 <th scope="col">@Html.DisplayNameFor(x => x.Students[0].AcademicGroupName)</th>
+                <th scope="col">@Html.DisplayNameFor(x => x.Students[0].CommandId)</th>
                 <th scope="col"></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var teacher in Model.Students)
+            @foreach (var student in Model.Students)
             {
                 <tr>
-                    <th scope="row">@teacher.Id</th>
-                    <td>@Html.DisplayFor(x => teacher.FullName)</td>
-                    <td>@Html.DisplayFor(x => teacher.Email)</td>
-                    <td>@Html.DisplayFor(x => teacher.Cource)</td>
-                    <td>@Html.DisplayFor(x => teacher.AcademicGroupName)</td>
+                        <th scope="row">@student.Id</th>
+                        <td>@Html.DisplayFor(x => student.FullName)</td>
+                        <td>@Html.DisplayFor(x => student.Cource)</td>
+                        <td>@Html.DisplayFor(x => student.AcademicGroupName)</td>
+                        <td>@Html.DisplayFor(x => student.CommandId)</td>
                     <td>
-                        <a class="btn btn-sm btn-primary" asp-page="./Edit" asp-route-id="@teacher.Id">Изменить</a>
-                        <a class="btn btn-sm btn-danger" asp-page="./Remove" asp-route-id="@teacher.Id">Удалить</a>
+                        <a class="btn btn-sm btn-primary" asp-page="./Edit" asp-route-id="@student.Id">Изменить</a>
+                        <a class="btn btn-sm btn-danger" asp-page="./Remove" asp-route-id="@student.Id">Удалить</a>
                     </td>
 
                 </tr>

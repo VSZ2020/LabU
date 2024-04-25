@@ -1,20 +1,17 @@
-﻿using LabU.Core.Entities;
+﻿using LabU.Core;
+using LabU.Core.Entities;
 using LabU.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
 namespace LabU.Data.Repository
 {
-    public class DefaultTaskRepository: ITaskRepository, IDisposable
+    public class DefaultTaskRepository: BaseRepository,  ITaskRepository
     {
-        public DefaultTaskRepository(DataContext context)
-        {
-            _context = context;
-        }
-
-        private readonly DataContext _context;
+        public DefaultTaskRepository(DataContext context): base(context)
+        {}
         
-        public async Task<IEnumerable<TaskEntity>> GetAllAsync(int subjectId, int personId = 0)
+        public async Task<IEnumerable<TaskEntity>> GetTasksAsync(int subjectId, int personId = 0)
         {
             Expression<Func<TaskEntity, bool>> filter = e => (subjectId != 0 ? e.SubjectId == subjectId : true) && (personId != 0 ? e.Users.Any(u => u.Id == personId) : true);
             return await _context.Tasks.AsNoTracking()
@@ -23,26 +20,12 @@ namespace LabU.Data.Repository
                 .Where(filter).ToListAsync();
         }
 
-        //Source: https://learn.microsoft.com/ru-ru/aspnet/mvc/overview/older-versions/getting-started-with-ef-5-using-mvc-4/implementing-the-repository-and-unit-of-work-patterns-in-an-asp-net-mvc-application
-        public async Task<IEnumerable<TaskEntity>> GetAllAsync(
+        public Task<IEnumerable<TaskEntity>> GetTasksAsync(
             Expression<Func<TaskEntity, bool>>? filter = null, 
             Func<IQueryable<TaskEntity>, IOrderedQueryable<TaskEntity>>? orderBy = null, 
             string? includeProps = "")
         {
-            IQueryable<TaskEntity> tasks = _context.Tasks.AsNoTracking();
-
-            if (filter != null)
-                tasks = tasks.Where(filter);
-
-            if (!string.IsNullOrEmpty(includeProps))
-            {
-                foreach(var prop in includeProps.Split(',', StringSplitOptions.RemoveEmptyEntries))
-                {
-                    tasks = tasks.Include(prop);
-                }
-            }
-
-            return orderBy != null ? await orderBy(tasks).ToListAsync() : await tasks.ToListAsync();
+            return base.GetAllAsync(filter, orderBy, includeProps);
         }
 
         public async Task<TaskEntity?> FindByIdAsync(int id)
@@ -143,24 +126,10 @@ namespace LabU.Data.Repository
             return true;
         }
 
-
-        private bool disposed = false;
-        protected virtual void Dispose(bool disposing)
+        public async Task<bool> ChangeTaskStatus(int taskId, ResponseState newStatus)
         {
-            if (!this.disposed)
-            {
-                if (disposing)
-                {
-                    _context.Dispose();
-                }
-            }
-            this.disposed = true;
-        }
-
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            await _context.Tasks.Where(t => t.Id == taskId).ExecuteUpdateAsync(t => t.SetProperty(p => p.Status, p => newStatus));
+            return true;
         }
     }
 }

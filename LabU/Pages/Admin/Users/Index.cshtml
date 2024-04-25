@@ -4,7 +4,7 @@
     ViewData["Title"] = "Пользователи";
 }
 
-<h3>Пользователи системы</h3>
+<h1>Пользователи системы</h1>
 
 <div class="table-responsive">
     <table class="table">
@@ -34,7 +34,6 @@
                     <td>
                         <a class="btn btn-sm btn-success" asp-page="./EditRoles" asp-route-id="@user.Id">Роли</a>
                         <a class="btn btn-sm btn-primary" asp-page="./ResetPassword" asp-route-id="@user.Id">Сбросить пароль</a>
-                        <a class="btn btn-sm btn-danger" asp-page="./Remove" asp-route-id="@user.Id">Удалить</a>
                     </td>
 
                 </tr>

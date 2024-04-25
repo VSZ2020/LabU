@@ -1,0 +1,36 @@
+﻿@page
+@model LabU.Pages.Admin.Subjects.AddModel
+@{
+    ViewData["Title"] = "Создание дисциплины";
+}
+<h2>@ViewData["Title"]</h2>
+<div class="row">
+    <form method="post">
+        <div asp-validation-summary="All"></div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="@Model.Subject.Name" class="form-control" />
+            <label asp-for="@Model.Subject.Name" class="control-label"></label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="@Model.Subject.Description" class="form-control" />
+            <label asp-for="@Model.Subject.Description" class="control-label"></label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <input asp-for="@Model.Subject.AcademicYear" class="form-control" />
+            <label asp-for="@Model.Subject.AcademicYear" class="control-label"></label>
+        </div>
+
+        <div class="form-floating mb-3">
+            <select asp-items="@Model.AcademicTerms" asp-for="@Model.Subject.AcademicTerm" class="form-control">
+                <option value="">-- Не выбран --</option>
+            </select>
+            <label asp-for="@Model.Subject.AcademicTerm" class="control-label"></label>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Добавить</button>
+        <a asp-page="./Index" class="btn btn-light">Отмена</a>
+    </form>
+</div>

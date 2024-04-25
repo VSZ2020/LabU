@@ -14,7 +14,9 @@ namespace LabU.Mappers
                 FirstName = entity.FirstName,
                 LastName = entity.LastName,
                 CommandId = entity.CommandId,
-                Cource = entity.Cource,
+                Cource = entity.Course,
+                AcademicGroupId = entity.AcademicGroupId,
+                AcademicGroupName = entity.AcademicGroup?.Name ?? "-",
             };
         }
     }

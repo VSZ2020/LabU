@@ -1,5 +1,5 @@
 using LabU.Core.Entities;
-using LabU.Data.Repository;
+using LabU.Core.Interfaces;
 using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -10,12 +10,14 @@ namespace LabU.Pages.Student.Task.Response
 {
     public class AddModel : PageModel
     {
-        public AddModel(UnitOfWork uow, ILogger<AddModel> logger)
+        public AddModel(ITaskRepository tr, ITaskResponseService trr, ILogger<AddModel> logger)
         {
-            _uow = uow;
+            _tr = tr;
+            _trr = trr;
         }
 
-        private readonly UnitOfWork _uow;
+        private readonly ITaskRepository _tr;
+        private readonly ITaskResponseService _trr;
         private ILogger<AddModel> _logger;
 
         [BindProperty]
@@ -27,10 +29,18 @@ namespace LabU.Pages.Student.Task.Response
             if (taskId == null)
                 return RedirectToPage("./Index");
 
-            var taskService = _uow.TasksService;
+            var taskService = _tr;
             var task = await taskService.FindByIdAsync(taskId.Value);
 
-            if (task.Deadline.Value < DateTime.Now)
+            if (task == null)
+                return NotFound("Такого задания не существует");
+
+            if (task.Status == Core.ResponseState.Accepted)
+            {
+                return BadRequest("Ваше задание уже принято и не требует ответа");
+            }
+
+            if (task.Deadline != null && task.Deadline.Value < DateTime.Now)
             {
                 return BadRequest("Срок ответа на задание вышел!");
             }
@@ -54,6 +64,24 @@ namespace LabU.Pages.Student.Task.Response
 
         public async Task<IActionResult> OnPostAsync()
         {
+            if (TaskResponse == null || TaskResponse.TaskId == 0)
+            {
+                return RedirectToPage("./Index");
+            }
+
+            var task = await _tr.FindByIdAsync(TaskResponse.TaskId);
+            if (task == null)
+                return NotFound("Такого задания не существует");
+
+            if (task.Status == Core.ResponseState.Accepted)
+            {
+                return BadRequest("Ваше задание уже принято и не требует ответа");
+            }
+
+            if (task.Deadline != null && task.Deadline.Value < DateTime.Now)
+            {
+                return BadRequest("Срок ответа на задание вышел!");
+            }
 
             if (!ModelState.IsValid)
             {
@@ -74,8 +102,7 @@ namespace LabU.Pages.Student.Task.Response
 
             try
             {
-                _uow.ResponseService.AddResponse(response);
-                await _uow.SaveChangesAsync();
+                await _trr.AddResponseAsync(response);
             }
             catch (DbUpdateException ex)
             {

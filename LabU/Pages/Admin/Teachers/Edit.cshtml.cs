@@ -1,4 +1,5 @@
 using LabU.Core.Identity;
+using LabU.Core.Interfaces;
 using LabU.Data.Repository;
 using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -9,13 +10,19 @@ namespace LabU.Pages.Admin.Teachers
 {
     public class EditModel : PageModel
     {
-        public EditModel(UnitOfWork u, ILogger<EditModel> logger)
+        public EditModel(IPersonRepository pr, IUserService us, IRoleService rs, ILogger<EditModel> logger)
         {
-            _u = u;
+            _pr = pr;
+            _us = us;
+            _rs = rs;
+
             _logger = logger;
         }
 
-        readonly UnitOfWork _u;
+        readonly IPersonRepository _pr;
+        readonly IUserService _us;
+        readonly IRoleService _rs;
+
         readonly ILogger<EditModel> _logger;
 
         [BindProperty]
@@ -33,7 +40,7 @@ namespace LabU.Pages.Admin.Teachers
                 return NotFound($"Идентификатор не задан");
             }
 
-            var entity = await _u.PersonService.FindTeacherByIdAsync(id.Value);
+            var entity = await _pr.FindTeacherByIdAsync(id.Value);
             if (entity == null)
                 return Redirect("./Index");
 
@@ -71,8 +78,8 @@ namespace LabU.Pages.Admin.Teachers
             if (!ModelState.IsValid)
             { return Page(); }
 
-            var entityTeacher = await _u.PersonService.FindTeacherByIdAsync(id.Value);
-            var entityAccount = await _u.UserService.FindByIdAsync(id.Value);
+            var entityTeacher = await _pr.FindTeacherByIdAsync(id.Value);
+            var entityAccount = await _us.FindByIdAsync(id.Value);
             if (entityTeacher == null || entityAccount == null)
             {
                 ModelState.AddModelError("", "Сущность пользователя потеряна. Не удалось сохранить");
@@ -93,9 +100,8 @@ namespace LabU.Pages.Admin.Teachers
 
             try
             {
-                await _u.PersonService.EditTeacher(entityTeacher);
-                await _u.UserService.UpdateUserAsync(entityAccount);
-                await _u.SaveChangesAsync();
+                await _pr.EditTeacherAsync(entityTeacher);
+                await _us.UpdateUserAsync(entityAccount);
             }
             catch (DbUpdateException ex)
             {

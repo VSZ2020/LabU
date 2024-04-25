@@ -367,3 +367,4 @@ FodyWeavers.xsd
 
 #DatabaseFile
 *.db
+users.private.json

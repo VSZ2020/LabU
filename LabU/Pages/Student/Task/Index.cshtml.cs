@@ -13,10 +13,10 @@ namespace LabU.Pages.Student.Task
 {
     public class IndexModel : PageModel
     {
-        public IndexModel(UnitOfWork uow)
+        public IndexModel(ITaskRepository tr, ITaskResponseService trr)
         {
-            _taskService = uow.TasksService;
-            _taskResponseService = uow.ResponseService;
+            _taskService = tr;
+            _taskResponseService = trr;
         }
         private readonly ITaskRepository _taskService;
         private readonly ITaskResponseService _taskResponseService;
@@ -53,7 +53,7 @@ namespace LabU.Pages.Student.Task
 
             StudentTask = TaskMapper.Map(task, isFullStudentsName: false, isFullTeachersName: true, ",");
 
-            var taskResponses = await _taskResponseService.GetAllAsync(id.Value);
+            var taskResponses = await _taskResponseService.GetTaskResponsesAsync(id.Value);
             PreviousTaskResponses = taskResponses.Select(tr => TaskResponseMapper.Map(tr)).ToList();
 
             return Page();

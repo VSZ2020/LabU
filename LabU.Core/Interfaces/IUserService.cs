@@ -6,9 +6,6 @@ namespace LabU.Core.Interfaces;
 
 public interface IUserService
 {
-    Task<bool> ChangePasswordAsync(UserEntity user, string oldPassword, string newPassword);
-    Task<bool> ChangePasswordAsync(UserEntity user, string newPassword);
-
     Task<UserEntity?> FindByIdAsync(int id);
     Task<UserEntity?> FindByUsernameAsync(string username);
     Task<UserEntity?> FindByEmailAsync(string email);
@@ -20,7 +17,7 @@ public interface IUserService
     /// <returns></returns>
     Task<IEnumerable<RoleEntity>> GetUserRolesAsync(UserEntity user);
 
-    Task<IEnumerable<UserEntity>> GetAllUsers();
+    Task<IEnumerable<UserEntity>> GetUsers();
     Task<IEnumerable<UserEntity>> GetUsersAsync(
         Expression<Func<UserEntity, bool>>? filter = null,
         Func<IQueryable<UserEntity>, IOrderedQueryable<UserEntity>>? orderBy = null,
@@ -38,8 +35,6 @@ public interface IUserService
     Task<bool> AddToRoleAsync(int[] userIds, int roleId);
 
     Task<bool> UpdateUserRolesAsync(int userId, int[] roles);
-
-    Task<bool> UpdateRolesAsync(UserEntity user, RoleEntity[] roles);
 
     /// <summary>
     /// Удаляет пользователя из роли

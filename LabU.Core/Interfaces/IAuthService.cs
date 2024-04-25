@@ -1,16 +1,14 @@
-﻿using LabU.Core.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace LabU.Core.Interfaces
+﻿namespace LabU.Core.Interfaces
 {
     public interface IAuthService
     {
-        Task<bool?> TryAuthUserAsync(string login, string password);
+        Task<bool> TryAuthUserAsync(string login, string password);
 
         int GetLoginAttemptsCount(string login, int maxAttemptsCount = 5);
+
+        int AddLoginAttempt(int userId);
+
+        Task<bool> ChangePasswordAsync(int userId, string oldPassword, string newPassword);
+        Task<bool> ChangePasswordAsync(int userId, string newPassword);
     }
 }

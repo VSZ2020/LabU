@@ -1,6 +1,7 @@
 using LabU.Core.Entities;
 using LabU.Core.Entities.Identity;
 using LabU.Core.Identity;
+using LabU.Core.Interfaces;
 using LabU.Data.Repository;
 using LabU.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -11,13 +12,18 @@ namespace LabU.Pages.Admin.Teachers
 {
     public class AddModel : PageModel
     {
-        public AddModel(UnitOfWork uow, ILogger<AddModel> logger)
+        public AddModel(IPersonRepository pr, IUserService us, IRoleService rs, ILogger<AddModel> logger)
         {
-            _uow = uow;
+            _pr = pr;
+            _us = us;
+            _rs = rs;
             _logger = logger;
         }
 
-        readonly UnitOfWork _uow;
+        readonly IPersonRepository _pr;
+        readonly IUserService _us;
+        readonly IRoleService _rs;
+
         readonly ILogger<AddModel> _logger;
 
         [BindProperty]
@@ -43,9 +49,9 @@ namespace LabU.Pages.Admin.Teachers
                 IsActiveAccount = UserModel.IsActiveAccount,
                 IsEmailConfirmed = true,
                 LastVisit = DateTime.Now,
-                Roles = new List<RoleEntity>() { (await _uow.RoleService.FindByNameAsync(UserRoles.TEACHER))! },
+                Roles = new List<RoleEntity>() { (await _rs.FindByNameAsync(UserRoles.TEACHER))! },
             };
-            var newId = await _uow.UserService.CreateUserAsync(teacherAccount);
+            var newId = await _us.CreateUserAsync(teacherAccount);
 
             var teacherEntity = new TeacherEntity()
             {
@@ -58,11 +64,9 @@ namespace LabU.Pages.Admin.Teachers
                 Id = newId,
             };
 
-            await _uow.PersonService.CreateTeacher(teacherEntity);
-
             try
             {
-                await _uow.SaveChangesAsync();
+                await _pr.CreateTeacher(teacherEntity);
             }
             catch (DbUpdateException ex)
             {
